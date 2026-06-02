@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CK Manga — Bar Par Calculator</title>
+<style>
+:root {
+  --bg: #0d0d0d;
+  --surface: #161616;
+  --surface2: #202020;
+  --border: #2e2e2e;
+  --gold: #c9a84c;
+  --gold-dim: #8a6e2e;
+  --text: #e6e6e6;
+  --muted: #777;
+  --green: #52b37a;
+  --red: #e05c5c;
+  --blue: #5a9ee0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
+
+/* ── Header ── */
+header {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  background: var(--surface);
+  position: sticky; top: 0; z-index: 10;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand h1 { font-size: 16px; font-weight: 700; color: var(--gold); letter-spacing: 0.3px; }
+.brand span { font-size: 11px; color: var(--muted); }
+.header-controls { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
+.date-label { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.date-label input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 5px; font-size: 12px; }
+.btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.12s; white-space: nowrap; }
+.btn:hover { border-color: var(--gold); color: var(--gold); }
+.btn-primary { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
+.btn-primary:hover { background: #dbb95a; color: #000; border-color: #dbb95a; }
+.btn-ghost { background: none; border-color: transparent; color: var(--muted); }
+.btn-ghost:hover { color: var(--red); border-color: var(--red); }
+
+/* ── Summary Bar ── */
+.summary-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 10px 24px; display: flex; gap: 28px; align-items: center; flex-wrap: wrap;
+}
+.stat { display: flex; flex-direction: column; gap: 1px; }
+.stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; }
+.stat-value { font-size: 18px; font-weight: 700; color: var(--gold); line-height: 1; }
+.stat-value.highlight { color: var(--green); }
+
+/* ── Tabs ── */
+.tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 24px; background: var(--surface); gap: 0; }
+.tab-btn {
+  padding: 11px 18px; background: none; border: none; color: var(--muted);
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all 0.12s; display: flex; align-items: center; gap: 6px;
+}
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+.tab-btn .badge { background: var(--gold); color: #000; border-radius: 10px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
+.tab-btn:not(.active) .badge { background: var(--surface2); color: var(--muted); }
+
+/* ── Content ── */
+.tab-content { display: none; padding: 20px 24px 40px; max-width: 1100px; }
+.tab-content.active { display: block; }
+
+/* ── Section Labels ── */
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin: 24px 0 10px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.section-header:first-child { margin-top: 0; }
+.section-title { font-size: 11px; font-weight: 700; color: var(--gold-dim); text-transform: uppercase; letter-spacing: 1px; }
+.section-count { font-size: 11px; color: var(--muted); }
+
+/* ── Sales Table ── */
+.sales-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+.sales-table th {
+  text-align: left; padding: 7px 10px; font-size: 10px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.sales-table td { padding: 6px 10px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+.sales-table tr:hover td { background: var(--surface2); }
+.drink-name { font-weight: 500; font-size: 13px; }
+.drink-ing { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.no-recipe-tag { display: inline-block; background: #3a1a1a; color: var(--red); border-radius: 3px; padding: 1px 6px; font-size: 10px; font-weight: 600; margin-top: 2px; }
+.qty-input {
+  width: 64px; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 8px; border-radius: 5px; font-size: 13px;
+  text-align: center; transition: border-color 0.12s;
+}
+.qty-input:focus { outline: none; border-color: var(--gold); background: #252525; }
+.qty-input.has-value { border-color: var(--gold-dim); color: var(--gold); font-weight: 600; }
+
+/* ── Par Table ── */
+.par-category-header {
+  font-size: 10px; font-weight: 700; color: var(--gold-dim);
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 14px 0 6px; margin-top: 4px;
+}
+.par-category-header:first-child { padding-top: 0; }
+.par-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+.par-table th {
+  text-align: left; padding: 7px 12px; font-size: 10px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border); background: var(--surface);
+}
+.par-table th:not(:first-child) { text-align: center; }
+.par-table td { padding: 7px 12px; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+.par-table tr:hover td { background: var(--surface2); }
+.par-table td:not(:first-child) { text-align: center; }
+.prep-name { font-weight: 500; font-size: 13px; }
+.oz-needed { font-size: 16px; font-weight: 700; color: var(--gold); }
+.oz-unit { font-size: 11px; color: var(--muted); }
+.onhand-input {
+  width: 72px; background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); padding: 5px 8px; border-radius: 5px; font-size: 13px;
+  text-align: center; transition: border-color 0.12s;
+}
+.onhand-input:focus { outline: none; border-color: var(--blue); }
+.net-value { font-size: 15px; font-weight: 700; }
+.net-positive { color: var(--green); }
+.net-zero { color: var(--muted); font-weight: 400; }
+.net-covered { color: var(--muted); font-size: 11px; }
+
+.empty-state { padding: 48px 24px; text-align: center; color: var(--muted); }
+.empty-state p { margin-bottom: 14px; font-size: 15px; }
+
+/* ── Toggle unused ── */
+.toggle-unused { margin-top: 16px; }
+
+/* ── Print ── */
+@media print {
+  header .header-controls, .summary-bar, .tabs { display: none !important; }
+  .tab-content { display: block !important; padding: 16px; }
+  body { background: white; color: black; font-size: 12px; }
+  .qty-input, .onhand-input { border: 1px solid #ccc; }
+  .oz-needed { color: #333 !important; }
+  .net-positive { color: #1a7a3e !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ HEADER ═══════════════════════════════ -->
+<header>
+  <div class="brand">
+    <h1>CK Manga — Bar Par Calculator</h1>
+    <span>Sales → Prep Needs · Both Locations</span>
+  </div>
+  <div class="header-controls">
+    <div class="date-label">
+      Week of
+      <input type="date" id="weekDate">
+    </div>
+    <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
+    <button class="btn" onclick="window.print()">Print / Export</button>
+    <button class="btn btn-primary" onclick="showTab('pars')">View Pars →</button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════ SUMMARY BAR ══════════════════════════════ -->
+<div class="summary-bar">
+  <div class="stat">
+    <span class="stat-label">Drinks Sold</span>
+    <span class="stat-value" id="statSold">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Prep Items Triggered</span>
+    <span class="stat-value highlight" id="statItems">0</span>
+  </div>
+  <div class="stat">
+    <span class="stat-label">Total Oz to Prep</span>
+    <span class="stat-value" id="statOz">0</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ TABS ════════════════════════════════ -->
+<div class="tabs">
+  <button class="tab-btn active" id="tabBtnSales" onclick="showTab('sales')">
+    1 · Sales Input
+  </button>
+  <button class="tab-btn" id="tabBtnPars" onclick="showTab('pars')">
+    2 · Prep Pars
+    <span class="badge" id="parsBadge">0</span>
+  </button>
+</div>
+
+<!-- ════════════════════════════════ SALES TAB ═══════════════════════════════ -->
+<div class="tab-content active" id="tab-sales">
+  <div id="salesContent"></div>
+</div>
+
+<!-- ════════════════════════════════= PARS TAB ═══════════════════════════════ -->
+<div class="tab-content" id="tab-pars">
+  <div id="parsContent"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════════════════════════════════════
+
+const PREP_ITEMS = [
+  // Fresh Juice
+  { id:'lemon',         name:'Lemon Juice',           cat:'Fresh Juice' },
+  { id:'lime',          name:'Lime Juice',             cat:'Fresh Juice' },
+  { id:'grapefruit',    name:'Grapefruit Juice',       cat:'Fresh Juice' },
+  { id:'grilled_lemon', name:'Grilled Lemon Juice',    cat:'Fresh Juice' },
+  { id:'yuzu',          name:'Yuzu',                   cat:'Fresh Juice' },
+  { id:'pineapple_j',   name:'Pineapple Juice',        cat:'Fresh Juice' },
+  // Syrups
+  { id:'lemongrass_s',  name:'Lemongrass Syrup',       cat:'Syrup' },
+  { id:'ember_s',       name:'Ember Syrup',            cat:'Syrup' },
+  { id:'maple_s',       name:'Maple Syrup',            cat:'Syrup' },
+  { id:'demerara',      name:'Demerara Syrup',         cat:'Syrup' },
+  { id:'ginger_honey',  name:'Ginger Honey Syrup',     cat:'Syrup' },
+  { id:'vanilla_s',     name:'Vanilla Syrup',          cat:'Syrup' },
+  { id:'peppercorn_s',  name:'Peppercorn Syrup',       cat:'Syrup' },
+  { id:'rice_s',        name:'Toasted Rice Syrup',     cat:'Syrup' },
+  { id:'ipa_s',         name:'IPA Beer Syrup',         cat:'Syrup' },
+  { id:'thai_basil_s',  name:'Thai Basil Syrup',       cat:'Syrup' },
+  { id:'pine_gum',      name:'Pineapple Gum',          cat:'Syrup' },
+  { id:'guava_s',       name:'Guava Syrup',            cat:'Syrup' },
+  { id:'pb_choc_s',     name:'PB Chocolate Syrup',     cat:'Syrup' },
+  { id:'vanilla_org',   name:'Vanilla Orgeat',         cat:'Syrup' },
+  // Batches & Cordials
+  { id:'crystal_c',     name:'Crystal Cordial',        cat:'Batch / Cordial' },
+  { id:'lucid_c',       name:'Lucid Cordial',          cat:'Batch / Cordial' },
+  { id:'oni_plum_c',    name:'Oni Plum Cordial',       cat:'Batch / Cordial' },
+  { id:'pandan_gum_c',  name:'Pandan Gum Cordial',     cat:'Batch / Cordial' },
+  { id:'long_thai_b',   name:'Long Thai Batch',        cat:'Batch / Cordial' },
+  { id:'bmp_shrub',     name:'BMP Shrub',              cat:'Batch / Cordial' },
+  // Purées
+  { id:'peach_p',       name:'Peach Purée',            cat:'Purée' },
+  { id:'passion_p',     name:'Passion Fruit Purée',    cat:'Purée' },
+  { id:'carrot_p',      name:'Carrot Purée',           cat:'Purée' },
+  { id:'kimchi_pico_p', name:'Kimchi Pico Purée',      cat:'Purée' },
+  { id:'jackfruit_p',   name:'Jackfruit Purée',        cat:'Purée' },
+  // Other Prep
+  { id:'cucumber_w',    name:'Cucumber Water',         cat:'Other Prep' },
+  { id:'coconut_c',     name:'Coconut Cream',          cat:'Other Prep' },
+  { id:'thai_tea',      name:'Thai Tea',               cat:'Other Prep' },
+  { id:'aa_pine',       name:'Acid Adj. Pineapple',    cat:'Other Prep' },
+  { id:'aa_oj',         name:'Acid Adj. OJ',           cat:'Other Prep' },
+  { id:'aa_straw',      name:'Acid Adj. Strawberry',   cat:'Other Prep' },
+  { id:'oat_geat',      name:'Oat-Geat',               cat:'Other Prep' },
+  { id:'asian_pear',    name:'Asian Pear Cheong',      cat:'Other Prep' },
+  { id:'adzuki_org',    name:'Adzuki Orgeat',          cat:'Other Prep' },
+  { id:'clamato',       name:'Clamato Juice',          cat:'Other Prep' },
+];
+
+const PREP_MAP = Object.fromEntries(PREP_ITEMS.map(p => [p.id, p]));
+
+const DRINKS = [
+  // ── CKG Manga ─────────────────────────────────────────────────────────────
+  { name:'Backyard Kid',             menu:'CKG Manga',  ing:{ lemon:0.5, lime:0.5, ember_s:1 } },
+  { name:'Bad Man Lighter',          menu:'CKG Manga',  ing:{ grilled_lemon:0.5, pineapple_j:0.75, thai_tea:0.5 } },
+  { name:'Crystal Castle',           menu:'CKG Manga',  ing:{ crystal_c:1.5 } },
+  { name:"Dissonant Whispers",       menu:'CKG Manga',  ing:{} },
+  { name:"Elisabetta's Slumber",     menu:'CKG Manga',  ing:{} },
+  { name:'Koi Kooler',               menu:'CKG Manga',  ing:{ lemon:0.75, lemongrass_s:0.5 } },
+  { name:'License to Drive',         menu:'CKG Manga',  ing:{} },
+  { name:'Liquid Escape',            menu:'CKG Manga',  ing:{ demerara:0.5 } },
+  { name:'Lucid Fuji',               menu:'CKG Manga',  ing:{ lucid_c:1.5 } },
+  { name:'Midnight Oni Highball',    menu:'CKG Manga',  ing:{ oni_plum_c:1 } },
+  { name:'Pandan B-Bop',             menu:'CKG Manga',  ing:{ pineapple_j:0.75, vanilla_org:0.25, passion_p:0.25, lemon:1 } },
+  { name:'Scarlet Sora',             menu:'CKG Manga',  ing:{ lemon:0.5, lime:0.25, peach_p:0.5, pine_gum:0.25 } },
+  { name:'Sunburst',                 menu:'CKG Manga',  ing:{ aa_pine:0.75, peach_p:0.5 } },
+  { name:'Yotei Six',                menu:'CKG Manga',  ing:{ ember_s:1.25, lime:0.5, lemon:0.25, clamato:1.5 } },
+  { name:'Zenitsu Zour',             menu:'CKG Manga',  ing:{ aa_oj:1, coconut_c:1, yuzu:0.25, ginger_honey:0.25 } },
+  // ── CKC Manga ─────────────────────────────────────────────────────────────
+  { name:'Ba New New',               menu:'CKC Manga',  ing:{ vanilla_s:0.75, lime:0.75 } },
+  { name:'Berry Beri',               menu:'CKC Manga',  ing:{ lemongrass_s:1, yuzu:0.25 } },
+  { name:"Don't Carrot All",         menu:'CKC Manga',  ing:{ grapefruit:0.5, lemon:0.25, carrot_p:1.5 } },
+  { name:'Enabler',                  menu:'CKC Manga',  ing:{ maple_s:1, grilled_lemon:0.75 } },
+  { name:'Golden Elixir',            menu:'CKC Manga',  ing:{ lemon:0.75, ginger_honey:0.75 } },
+  { name:'Hey Bartender!',           menu:'CKC Manga',  ing:{}, note:'Recipe not on file — add manually' },
+  { name:'Koi-Chelada',              menu:'CKC Manga',  ing:{ kimchi_pico_p:1, lime:0.75 } },
+  { name:'Lemongrass Swizzle',       menu:'CKC Manga',  ing:{ lemongrass_s:1, cucumber_w:0.75, lime:0.5, yuzu:0.25 } },
+  { name:'Long Thailand Iced Tea',   menu:'CKC Manga',  ing:{ long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5 } },
+  { name:'Mr. Paradise',             menu:'CKC Manga',  ing:{ lemon:0.5, pb_choc_s:0.75 } },
+  { name:'Overnight',                menu:'CKC Manga',  ing:{ oat_geat:0.5, asian_pear:0.5, grapefruit:0.5, lemon:0.25 } },
+  { name:'Patent Pending',           menu:'CKC Manga',  ing:{ peppercorn_s:0.25 } },
+  { name:'Riding The Pine',          menu:'CKC Manga',  ing:{ lime:1, passion_p:0.75 } },
+  { name:'Say Less',                 menu:'CKC Manga',  ing:{ lemongrass_s:0.25 } },
+  { name:'Shifting Sands',           menu:'CKC Manga',  ing:{ rice_s:1, lime:0.5 } },
+  { name:'Thai Berry Soda',          menu:'CKC Manga',  ing:{ aa_straw:1, thai_basil_s:0.75 } },
+  { name:"Thai'd Up",                menu:'CKC Manga',  ing:{ pandan_gum_c:1.5 } },
+  { name:'Trees Have Eyes',          menu:'CKC Manga',  ing:{ lemon:0.5, lime:0.25, ipa_s:0.5 } },
+  { name:'Uncle Adzuki',             menu:'CKC Manga',  ing:{ adzuki_org:0.5 } },
+  { name:'Watch Your Head, Skipper', menu:'CKC Manga',  ing:{ jackfruit_p:1, guava_s:0.5, lime:0.25 } },
+  // ── NA Cocktails ──────────────────────────────────────────────────────────
+  { name:'Lemongrass Swizzle NA',    menu:'Non-Alcoholic', ing:{ lemongrass_s:2, lime:1, yuzu:0.5, cucumber_w:1.5 } },
+  { name:'Lemongrass Refresher NA',  menu:'Non-Alcoholic', ing:{ yuzu:0.5, lime:1, cucumber_w:1.5, lemongrass_s:2 } },
+  { name:'Riding The Pine NA',       menu:'Non-Alcoholic', ing:{ lime:1, passion_p:1 } },
+  { name:'Sideline View NA',         menu:'Non-Alcoholic', ing:{ lime:2, passion_p:1.5 } },
+  { name:"Ube'Be Colada NA",         menu:'Non-Alcoholic', ing:{ pineapple_j:2, coconut_c:1.5, lime:0.75 } },
+  { name:'BMP Sour NA',              menu:'Non-Alcoholic', ing:{ bmp_shrub:1.5, pineapple_j:0.5, lemon:0.25 } },
+  { name:'Conversation Starter NA',  menu:'Non-Alcoholic', ing:{ pineapple_j:0.5, demerara:0.75 } },
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  STATE  (in-memory; localStorage for persistence across reloads)
+// ══════════════════════════════════════════════════════════════════════════════
+
+let sales  = {};   // drinkName  → qty sold
+let onHand = {};   // prepItemId → oz on hand
+
+function saveState() {
+  try {
+    localStorage.setItem('ck_pars_sales',  JSON.stringify(sales));
+    localStorage.setItem('ck_pars_onhand', JSON.stringify(onHand));
+  } catch(e) {}
+}
+function loadState() {
+  try {
+    sales  = JSON.parse(localStorage.getItem('ck_pars_sales'))  || {};
+    onHand = JSON.parse(localStorage.getItem('ck_pars_onhand')) || {};
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CALCULATIONS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function calcNeeded() {
+  const totals = {};
+  DRINKS.forEach(d => {
+    const qty = parseFloat(sales[d.name]) || 0;
+    if (!qty) return;
+    Object.entries(d.ing).forEach(([id, oz]) => {
+      totals[id] = (totals[id] || 0) + oz * qty;
+    });
+  });
+  return totals;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RENDER — SALES
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderSales() {
+  const menus = [...new Set(DRINKS.map(d => d.menu))];
+  let html = '';
+
+  menus.forEach(menu => {
+    const drinks = DRINKS.filter(d => d.menu === menu);
+    const menuTotal = drinks.reduce((s, d) => s + (parseFloat(sales[d.name]) || 0), 0);
+    html += `
+      <div class="section-header">
+        <span class="section-title">${menu}</span>
+        <span class="section-count">${drinks.length} cocktails${menuTotal > 0 ? ' · ' + menuTotal + ' sold' : ''}</span>
+      </div>
+      <table class="sales-table">
+        <thead><tr>
+          <th style="width:220px">Cocktail</th>
+          <th>Prep Items Used (per serving)</th>
+          <th style="width:100px;text-align:center">Qty Sold</th>
+        </tr></thead>
+        <tbody>`;
+
+    drinks.forEach(d => {
+      const qty  = sales[d.name] || '';
+      const ingParts = Object.entries(d.ing).map(([id, oz]) => {
+        const item = PREP_MAP[id];
+        return item ? `<span style="color:var(--text);opacity:.7">${oz}oz</span> ${item.name}` : '';
+      }).filter(Boolean);
+      const ingStr = ingParts.length ? ingParts.join('&ensp;·&ensp;') : '<em style="opacity:.4">no tracked prep</em>';
+      const safe = d.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+      html += `
+        <tr>
+          <td>
+            <div class="drink-name">${d.name}</div>
+            ${d.note ? `<div class="no-recipe-tag">⚠ ${d.note}</div>` : ''}
+          </td>
+          <td><div class="drink-ing">${ingStr}</div></td>
+          <td style="text-align:center">
+            <input class="qty-input${qty ? ' has-value' : ''}" type="number" min="0" step="1"
+              value="${qty}" placeholder="0"
+              oninput="setSales('${safe}', this.value); this.classList.toggle('has-value', !!this.value)">
+          </td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+  });
+
+  document.getElementById('salesContent').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RENDER — PARS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderPars() {
+  const needed = calcNeeded();
+  const activeIds = new Set(Object.keys(needed).filter(id => needed[id] > 0));
+
+  // Also include items with on-hand stock even if 0 needed
+  Object.keys(onHand).forEach(id => { if (onHand[id] > 0) activeIds.add(id); });
+
+  if (activeIds.size === 0) {
+    document.getElementById('parsContent').innerHTML = `
+      <div class="empty-state">
+        <p>No sales entered yet.</p>
+        <button class="btn btn-primary" onclick="showTab('sales')">← Enter Sales</button>
+      </div>`;
+    return;
+  }
+
+  const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
+  let html = `
+    <table class="par-table" style="margin-bottom:0">
+      <thead><tr>
+        <th style="width:220px">Prep Item</th>
+        <th style="width:130px">Oz Needed</th>
+        <th style="width:140px">On Hand (oz)</th>
+        <th style="width:150px">Net to Prep</th>
+        <th>Driven By</th>
+      </tr></thead>
+    </table>`;
+
+  categories.forEach(cat => {
+    const items = PREP_ITEMS.filter(p => activeIds.has(p.id) && p.cat === cat);
+    if (!items.length) return;
+
+    html += `<div class="par-category-header">${cat}</div>`;
+    html += `<table class="par-table">
+      <tbody>`;
+
+    items.forEach(p => {
+      const need   = needed[p.id] || 0;
+      const hand   = onHand[p.id] || 0;
+      const net    = Math.max(0, need - hand);
+      const netCls = net === 0 ? 'net-zero' : 'net-positive';
+      const netTxt = net === 0 ? (need === 0 ? '—' : 'Covered ✓') : net.toFixed(1) + ' oz';
+
+      // Which drinks drive this item
+      const drivers = DRINKS
+        .filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0)
+        .map(d => `${d.name} ×${parseInt(sales[d.name])}`)
+        .join(', ');
+
+      html += `
+        <tr>
+          <td><div class="prep-name">${p.name}</div></td>
+          <td>
+            <span class="oz-needed">${need.toFixed(1)}</span>
+            <span class="oz-unit"> oz</span>
+          </td>
+          <td>
+            <input class="onhand-input" type="number" min="0" step="0.5"
+              value="${hand || ''}" placeholder="0"
+              oninput="setOnHand('${p.id}', this.value)">
+            <span class="oz-unit"> oz</span>
+          </td>
+          <td><span class="net-value ${netCls}">${netTxt}</span></td>
+          <td style="font-size:11px;color:var(--muted)">${drivers || '—'}</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+  });
+
+  document.getElementById('parsContent').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SUMMARY BAR
+// ══════════════════════════════════════════════════════════════════════════════
+
+function updateSummary() {
+  const needed = calcNeeded();
+  const totalSold  = Object.values(sales).reduce((s, v) => s + (parseFloat(v)||0), 0);
+  const itemCount  = Object.keys(needed).filter(id => needed[id] > 0).length;
+  const totalOz    = Object.values(needed).reduce((s, v) => s + v, 0);
+
+  document.getElementById('statSold').textContent  = totalSold;
+  document.getElementById('statItems').textContent = itemCount;
+  document.getElementById('statOz').textContent    = totalOz.toFixed(1);
+  document.getElementById('parsBadge').textContent = itemCount;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  EVENT HANDLERS
+// ══════════════════════════════════════════════════════════════════════════════
+
+function setSales(name, val) {
+  const n = parseFloat(val);
+  if (!n || n <= 0) delete sales[name]; else sales[name] = n;
+  saveState();
+  updateSummary();
+  // Re-render pars if that tab is active
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+function setOnHand(id, val) {
+  const n = parseFloat(val);
+  if (!n || n <= 0) delete onHand[id]; else onHand[id] = n;
+  saveState();
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+function showTab(tab) {
+  ['sales','pars'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+  });
+  if (tab === 'pars') renderPars();
+}
+
+function clearSales() {
+  if (!confirm('Clear all entered sales quantities?')) return;
+  sales = {};
+  saveState();
+  renderSales();
+  updateSummary();
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('weekDate').valueAsDate = new Date();
+  loadState();
+  renderSales();
+  updateSummary();
+});
+</script>
+</body>
+</html>
