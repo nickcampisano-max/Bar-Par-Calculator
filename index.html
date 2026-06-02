@@ -132,6 +132,33 @@ header {
 .empty-state { padding: 48px 24px; text-align: center; color: var(--muted); }
 .empty-state p { margin-bottom: 14px; font-size: 15px; }
 
+/* ── Upload Panel ── */
+.upload-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 20px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.upload-panel-label { font-size: 12px; font-weight: 600; color: var(--gold); white-space: nowrap; }
+.upload-panel-sub { font-size: 11px; color: var(--muted); }
+.upload-drop {
+  flex: 1; min-width: 200px;
+  border: 1.5px dashed var(--border); border-radius: 8px;
+  padding: 12px 16px; text-align: center; cursor: pointer;
+  transition: all 0.15s; color: var(--muted); font-size: 12px;
+  background: var(--surface2);
+}
+.upload-drop:hover, .upload-drop.drag-over { border-color: var(--gold); color: var(--gold); background: #1f1a0d; }
+.upload-drop input[type=file] { display: none; }
+.import-results {
+  margin-top: 10px; padding: 10px 14px;
+  background: var(--surface2); border-radius: 7px;
+  font-size: 12px; display: none;
+}
+.import-results.show { display: block; }
+.import-match { color: var(--green); }
+.import-skip { color: var(--muted); }
+.import-warn { color: #e09a3a; }
+
 /* ── Toggle unused ── */
 .toggle-unused { margin-top: 16px; }
 
@@ -194,6 +221,25 @@ header {
 
 <!-- ════════════════════════════════ SALES TAB ═══════════════════════════════ -->
 <div class="tab-content active" id="tab-sales">
+
+  <!-- Upload Panel -->
+  <div class="upload-panel">
+    <div>
+      <div class="upload-panel-label">📋 Import Toast Product Mix</div>
+      <div class="upload-panel-sub">Upload a CSV export from Toast to auto-fill quantities</div>
+    </div>
+    <div class="upload-drop" id="uploadDrop"
+      onclick="document.getElementById('csvFile').click()"
+      ondragover="event.preventDefault(); this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)">
+      <input type="file" id="csvFile" accept=".csv,.txt" onchange="handleFileInput(event)">
+      Drop CSV here or click to browse
+    </div>
+    <button class="btn btn-ghost" onclick="clearSales()" style="white-space:nowrap">Clear All</button>
+  </div>
+  <div class="import-results" id="importResults"></div>
+
   <div id="salesContent"></div>
 </div>
 
@@ -524,6 +570,165 @@ function clearSales() {
   renderSales();
   updateSummary();
   if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  CSV IMPORT
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Known Toast name variations → our canonical name
+const NAME_ALIASES = {
+  'berri beri':            'Berry Beri',
+  'berry beri':            'Berry Beri',
+  'ba new new':            'Ba New New',
+  'long thailand':         'Long Thailand Iced Tea',
+  'long thailand iced tea':'Long Thailand Iced Tea',
+  'koi chelada':           'Koi-Chelada',
+  "thai'd up":             "Thai'd Up",
+  'thaid up':              "Thai'd Up",
+  'watch your head skipper':'Watch Your Head, Skipper',
+  'watch your head, skipper':'Watch Your Head, Skipper',
+  "ube'be colada na":      "Ube'Be Colada NA",
+  'ubebe colada na':       "Ube'Be Colada NA",
+};
+
+function normalizeName(str) {
+  return str.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+// Build lookup: normalized drink name → canonical name
+const DRINK_LOOKUP = {};
+DRINKS.forEach(d => {
+  DRINK_LOOKUP[normalizeName(d.name)] = d.name;
+});
+Object.entries(NAME_ALIASES).forEach(([alias, canonical]) => {
+  DRINK_LOOKUP[normalizeName(alias)] = canonical;
+});
+
+function matchDrinkName(raw) {
+  const norm = normalizeName(raw);
+  if (DRINK_LOOKUP[norm]) return DRINK_LOOKUP[norm];
+  // Partial match — if our drink name is contained in the raw name or vice versa
+  for (const [key, canonical] of Object.entries(DRINK_LOOKUP)) {
+    if (norm.includes(key) || key.includes(norm)) return canonical;
+  }
+  return null;
+}
+
+function parseCSV(text) {
+  // Split into lines, handle \r\n and \n
+  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+
+  // Find header row — look for a row containing "qty" somewhere
+  let headerIdx = -1;
+  let headers = [];
+  for (let i = 0; i < Math.min(lines.length, 10); i++) {
+    const cols = splitCSVLine(lines[i]);
+    const lower = cols.map(c => c.toLowerCase());
+    if (lower.some(c => c.includes('qty') || c.includes('quantity'))) {
+      headerIdx = i;
+      headers = lower;
+      break;
+    }
+  }
+
+  // Find item name and qty sold column indices
+  let nameCol = -1, qtyCol = -1;
+  if (headerIdx >= 0) {
+    headers.forEach((h, i) => {
+      if (qtyCol === -1 && (h.includes('qty') || h.includes('quantity'))) qtyCol = i;
+      if (nameCol === -1 && (h.includes('item') || h.includes('menu') || h === '' || i === 0)) nameCol = i;
+    });
+    if (nameCol === -1) nameCol = 0;
+  } else {
+    // No header found — assume first col = name, third col = qty (Toast default layout)
+    nameCol = 0; qtyCol = 2; headerIdx = -1;
+  }
+
+  const results = { matched: [], skipped: [], unmatched: [] };
+  const startRow = headerIdx + 1;
+
+  for (let i = startRow; i < lines.length; i++) {
+    const cols = splitCSVLine(lines[i]);
+    if (cols.length <= Math.max(nameCol, qtyCol)) continue;
+
+    const rawName = cols[nameCol].replace(/^["']|["']$/g, '').trim();
+    const rawQty  = cols[qtyCol].replace(/^["']|["']$/g, '').trim();
+    const qty = parseInt(rawQty);
+
+    if (!rawName || isNaN(qty)) continue;
+    if (qty <= 0) { results.skipped.push(rawName); continue; }
+
+    const canonical = matchDrinkName(rawName);
+    if (canonical) {
+      results.matched.push({ name: canonical, qty, raw: rawName });
+    } else {
+      // Skip obvious category headers / totals
+      if (rawName.toLowerCase().includes('total') || rawName.toLowerCase().includes('subtotal')) continue;
+      results.unmatched.push({ raw: rawName, qty });
+    }
+  }
+
+  return results;
+}
+
+function splitCSVLine(line) {
+  // Handle quoted fields with commas
+  const result = [];
+  let cur = '', inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQuote = !inQuote; }
+    else if (ch === ',' && !inQuote) { result.push(cur); cur = ''; }
+    else { cur += ch; }
+  }
+  result.push(cur);
+  return result;
+}
+
+function applyImport(results) {
+  // Apply matched items
+  results.matched.forEach(({ name, qty }) => {
+    sales[name] = qty;
+  });
+  saveState();
+  renderSales();
+  updateSummary();
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+
+  // Show results
+  const el = document.getElementById('importResults');
+  let html = `<span class="import-match">✓ ${results.matched.length} drinks matched and filled</span>`;
+  if (results.unmatched.length) {
+    html += `&ensp;·&ensp;<span class="import-warn">⚠ ${results.unmatched.length} not recognized: ${results.unmatched.map(u => u.raw).join(', ')}</span>`;
+  }
+  if (results.skipped.length) {
+    html += `&ensp;·&ensp;<span class="import-skip">${results.skipped.length} skipped (0 qty)</span>`;
+  }
+  el.innerHTML = html;
+  el.classList.add('show');
+}
+
+function handleFileInput(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  readAndParse(file);
+}
+
+function handleDrop(event) {
+  event.preventDefault();
+  document.getElementById('uploadDrop').classList.remove('drag-over');
+  const file = event.dataTransfer.files[0];
+  if (file) readAndParse(file);
+}
+
+function readAndParse(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const results = parseCSV(e.target.result);
+    applyImport(results);
+  };
+  reader.readAsText(file);
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
