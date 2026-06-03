@@ -340,6 +340,10 @@ const PREP_ITEMS = [
   { id:'grenadine',     name:'Grenadine',              cat:'Syrup' },
   { id:'orgeat',        name:'Orgeat',                 cat:'Syrup' },
   { id:'agave_s',       name:'Agave Syrup',            cat:'Syrup' },
+  { id:'sakura_s',      name:'Sakura Syrup',           cat:'Syrup' },
+  { id:'walnut_org',    name:'Walnut Orgeat',          cat:'Syrup' },
+  { id:'golden_s',      name:'Golden Syrup',           cat:'Syrup' },
+  { id:'sling_s',       name:'Sling Syrup',            cat:'Syrup' },
   { id:'ember_s',       name:'Ember Syrup',            cat:'Syrup' },
   { id:'maple_s',       name:'Maple Syrup',            cat:'Syrup' },
   { id:'demerara',      name:'Demerara Syrup',         cat:'Syrup' },
@@ -360,6 +364,8 @@ const PREP_ITEMS = [
   { id:'pandan_gum_c',  name:'Pandan Gum Cordial',     cat:'Batch / Cordial' },
   { id:'long_thai_b',   name:'Long Thai Batch',        cat:'Batch / Cordial' },
   { id:'bmp_shrub',     name:'BMP Shrub',              cat:'Batch / Cordial' },
+  { id:'shiso_pom',     name:'Shiso Pomegranate Shrub',cat:'Batch / Cordial' },
+  { id:'mikeydori',     name:'Mikeydori',              cat:'Batch / Cordial' },
   // Purées
   { id:'peach_p',       name:'Peach Purée',            cat:'Purée' },
   { id:'passion_p',     name:'Passion Fruit Purée',    cat:'Purée' },
@@ -367,6 +373,9 @@ const PREP_ITEMS = [
   { id:'kimchi_pico_p', name:'Kimchi Pico Purée',      cat:'Purée' },
   { id:'jackfruit_p',   name:'Jackfruit Purée',        cat:'Purée' },
   { id:'strawberry_p',  name:'Strawberry Purée',       cat:'Purée' },
+  { id:'ume_p',         name:'Ume Purée',              cat:'Purée' },
+  { id:'cantaloupe_p',  name:'Cantaloupe Purée',       cat:'Purée' },
+  { id:'kiwi_p',        name:'Kiwi',                   cat:'Purée' },
   // Other Prep
   { id:'cucumber_w',    name:'Cucumber Water',         cat:'Other Prep' },
   { id:'coconut_c',     name:'Coconut Cream',          cat:'Other Prep' },
@@ -380,6 +389,7 @@ const PREP_ITEMS = [
   { id:'clamato',       name:'Clamato Juice',          cat:'Other Prep' },
   { id:'aquafaba',      name:'Aquafaba',               cat:'Other Prep' },
   { id:'citrus_oleo',   name:'Citrus Oleo',            cat:'Other Prep' },
+  { id:'dragonfruit_m', name:'Dragonfruit Mix',        cat:'Other Prep' },
 ];
 
 const PREP_MAP = Object.fromEntries(PREP_ITEMS.map(p => [p.id, p]));
@@ -414,6 +424,20 @@ const DRINKS = [
   { name:"Ube'Be Colada NA",         menu:'Non-Alcoholic', ing:{ pineapple_j:2, coconut_c:1.5, lime:0.75 } },
   { name:'BMP Sour NA',              menu:'Non-Alcoholic', ing:{ bmp_shrub:1.5, pineapple_j:0.5, lemon:0.25 } },
   { name:'Conversation Starter NA',  menu:'Non-Alcoholic', ing:{ pineapple_j:0.5, demerara:0.75 } },
+  // ── ATP ───────────────────────────────────────────────────────────────────
+  { name:'Hanami',                   menu:'ATP', ing:{ sakura_s:0.5 } },
+  { name:'Match Fizz',               menu:'ATP', ing:{ lemon:0.5, aquafaba:0.75, walnut_org:0.75 } },
+  { name:'Big Trouble Little Tokyo', menu:'ATP', ing:{ lime:0.5, lemon:0.25, lemongrass_s:0.25, kiwi_p:0.25, mikeydori:1 } },
+  { name:'Konoha Sour',              menu:'ATP', ing:{ lemon:0.5, lime:0.25, lemongrass_s:0.25, shiso_pom:0.75, aquafaba:1.5 } },
+  { name:'Ume Highball',             menu:'ATP', ing:{ lemongrass_s:0.5, grapefruit:0.5, yuzu:0.75, ume_p:0.25 } },
+  { name:'Berry White',              menu:'ATP', ing:{ orgeat:0.75, lime:0.5, lemon:0.25 } },
+  { name:'Wrath of Ryu',             menu:'ATP', ing:{ pineapple_j:0.5, lime:0.25, dragonfruit_m:3 } },
+  { name:'Salty Pog',                menu:'ATP', ing:{ honey_s:0.75, lemon:0.75, passion_p:0.75 } },
+  { name:'Golden Child',             menu:'ATP', ing:{ lemon:0.75, golden_s:0.75 } },
+  { name:'Stir The Pot',             menu:'ATP', ing:{ lemon:0.5, orgeat:0.25, yuzu:0.25 } },
+  { name:'Koi Reviver',              menu:'ATP', ing:{ lemon:1 } },
+  { name:'Suntory Sling',            menu:'ATP', ing:{ lemon:0.5, lime:0.25, sling_s:0.75 } },
+  { name:'Commitment Issues',        menu:'ATP', ing:{ cantaloupe_p:2, lemon:0.75, agave_s:0.75 } },
   // ── Classics (Vodka) ──────────────────────────────────────────────────────
   { name:'Collins (Vodka)',          menu:'Classics', ing:{ lemon:0.75, simple_s:0.75 } },
   { name:'Koismo',                   menu:'Classics', ing:{ lime:0.5, simple_s:0.5 } },
@@ -630,14 +654,14 @@ function renderPars() {
             <div class="par-card-total-label">On Hand</div>
             <div style="display:flex;align-items:center;gap:5px">
               <input class="onhand-input" type="number" min="0" step="0.5"
-                value="${hand || ''}" placeholder="0"
+                value="${hand || ''}" placeholder="0" data-id="${p.id}"
                 oninput="setOnHand('${p.id}', this.value)">
               <span class="oz-unit">oz</span>
             </div>
           </div>
           <div class="par-card-net">
             <div class="par-card-total-label">Prep</div>
-            <div class="net-value ${netCls}">${netTxt}</div>
+            <div class="net-value ${netCls}" data-netid="${p.id}">${netTxt}</div>
           </div>
         </div>`;
     });
@@ -778,7 +802,16 @@ function setOnHand(id, val) {
   const n = parseFloat(val);
   if (!n || n <= 0) delete onHand[id]; else onHand[id] = n;
   saveState();
-  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+  // Update just the net value in-place — avoids re-render which kills focus
+  const netEl = document.querySelector(`.net-value[data-netid="${id}"]`);
+  if (netEl) {
+    const needed = calcNeeded(true);
+    const need = needed[id] || 0;
+    const hand = onHand[id] || 0;
+    const net  = Math.max(0, need - hand);
+    netEl.className = 'net-value ' + (net === 0 ? 'net-zero' : 'net-positive');
+    netEl.textContent = net === 0 ? (need === 0 ? '—' : 'Covered ✓') : net.toFixed(1) + ' oz';
+  }
 }
 
 function showTab(tab) {
@@ -814,8 +847,21 @@ const NAME_ALIASES = {
   'thaid up':              "Thai'd Up",
   'watch your head skipper':'Watch Your Head, Skipper',
   'watch your head, skipper':'Watch Your Head, Skipper',
-  "ube'be colada na":      "Ube'Be Colada NA",
-  'ubebe colada na':       "Ube'Be Colada NA",
+  "ube'be colada na":           "Ube'Be Colada NA",
+  'ubebe colada na':            "Ube'Be Colada NA",
+  'big trouble little tokyo':   'Big Trouble Little Tokyo',
+  'konoha sour':                'Konoha Sour',
+  'ume highball':               'Ume Highball',
+  'berry white':                'Berry White',
+  'wrath of ryu':               'Wrath of Ryu',
+  'salty pog':                  'Salty Pog',
+  'golden child':               'Golden Child',
+  'stir the pot':               'Stir The Pot',
+  'koi reviver':                'Koi Reviver',
+  'suntory sling':              'Suntory Sling',
+  'commitment issues':          'Commitment Issues',
+  'match fizz':                 'Match Fizz',
+  'hanami':                     'Hanami',
 };
 
 function normalizeName(str) {
