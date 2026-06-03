@@ -207,14 +207,23 @@ header {
   border-radius: 8px; padding: 6px 12px;
 }
 .buffer-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
-.buffer-presets { display: flex; gap: 4px; }
+.buffer-presets { display: flex; gap: 4px; align-items: center; }
 .buffer-preset {
   padding: 3px 10px; border-radius: 5px; border: 1px solid var(--border);
-  background: none; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600;
-  transition: all 0.12s;
+  background: none; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 700;
+  transition: all 0.12s; line-height: 1;
 }
 .buffer-preset:hover { border-color: var(--gold); color: var(--gold); }
 .buffer-preset.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.buffer-step {
+  padding: 3px 9px; border-radius: 5px; border: 1px solid var(--border);
+  background: none; color: var(--text); cursor: pointer; font-size: 14px; font-weight: 700;
+  transition: all 0.12s; line-height: 1;
+}
+.buffer-step:hover { border-color: var(--gold); color: var(--gold); }
+.buffer-display {
+  min-width: 44px; text-align: center; font-size: 13px; font-weight: 700; color: var(--gold);
+}
 .buffer-custom { display: flex; align-items: center; gap: 4px; }
 .buffer-input {
   width: 52px; background: var(--surface); border: 1px solid var(--border);
@@ -264,9 +273,10 @@ header {
     <div class="buffer-control">
       <span class="buffer-label">Par Buffer</span>
       <div class="buffer-presets">
-        <button class="buffer-preset" onclick="setBuffer(80)" id="buf80">−20%</button>
-        <button class="buffer-preset active" onclick="setBuffer(100)" id="buf100">Normal</button>
-        <button class="buffer-preset" onclick="setBuffer(120)" id="buf120">+20%</button>
+        <button class="buffer-step" onclick="stepBuffer(-5)">−</button>
+        <span class="buffer-display" id="bufferDisplay">100%</span>
+        <button class="buffer-step" onclick="stepBuffer(5)">+</button>
+        <button class="buffer-preset" id="bufReset" onclick="setBuffer(100)">Reset</button>
       </div>
       <div class="buffer-custom">
         <input class="buffer-input" type="number" id="bufferInput" value="100" min="50" max="200"
@@ -452,6 +462,8 @@ const DRINKS = [
   { name:'Vodka Tonic',              menu:'Classics', ing:{ lime:0.25, simple_s:0.25 } },
   { name:'Pornstar Martini',         menu:'Classics', ing:{ lemongrass_s:0.5, lemon:0.5, lime:0.25, passion_p:0.5 } },
   { name:'Sgroppino Al Limone',      menu:'Classics', ing:{ citrus_oleo:0.75, simple_s:0.25 } },
+  { name:'Vodka Martini',            menu:'Classics', ing:{} },
+  { name:'Vodka Gimlet',             menu:'Classics', ing:{ lime:0.75, simple_s:0.75 } },
   // ── Classics (Gin) ────────────────────────────────────────────────────────
   { name:'Aviation',                 menu:'Classics', ing:{ lemon:0.75, simple_s:0.5 } },
   { name:'Bees Knees',               menu:'Classics', ing:{ lemon:0.75, honey_s:1 } },
@@ -466,7 +478,10 @@ const DRINKS = [
   { name:'White Lady',               menu:'Classics', ing:{ lemon:0.75 } },
   { name:'Army Navy',                menu:'Classics', ing:{ lemon:0.5, orgeat:0.5 } },
   { name:'Southside Fizz',           menu:'Classics', ing:{ lime:1, simple_s:1 } },
+  { name:'Gin Martini',              menu:'Classics', ing:{} },
+  { name:'Negroni',                  menu:'Classics', ing:{} },
   // ── Classics (Rum) ────────────────────────────────────────────────────────
+  { name:'Jungle Bird',              menu:'Classics', ing:{ pineapple_j:1.5, lime:0.75, demerara:0.5 } },
   { name:'Daiquiri',                 menu:'Classics', ing:{ lime:0.75, gum_s:0.75 } },
   { name:'Dark and Stormy',          menu:'Classics', ing:{ ginga_s:0.75, lime:0.75, demerara:0.5 } },
   { name:'Doctor Funk',              menu:'Classics', ing:{ grenadine:0.75, lime:0.75, vanilla_s:0.25 } },
@@ -479,6 +494,8 @@ const DRINKS = [
   { name:'Avenue',                   menu:'Classics', ing:{ lemon:0.25, passion_p:1, oj:1 } },
   { name:'French 95',                menu:'Classics', ing:{ lemon:0.75, simple_s:0.5 } },
   { name:'New York Sour',            menu:'Classics', ing:{ lemon:0.75, gum_s:0.75, aquafaba:0.75 } },
+  { name:'Manhattan',                menu:'Classics', ing:{} },
+  { name:'Boulevardier',             menu:'Classics', ing:{} },
   { name:'Old Fashioned',            menu:'Classics', ing:{ demerara:0.25 } },
   { name:'Paper Plane',              menu:'Classics', ing:{ lemon:0.75 } },
   { name:'Penicillin',               menu:'Classics', ing:{ honey_s:0.75, lemon:0.75, ginga_s:0.75 } },
@@ -686,13 +703,17 @@ function updateSummary() {
   document.getElementById('parsBadge').textContent = itemCount;
 }
 
+function stepBuffer(delta) {
+  setBuffer(buffer + delta);
+}
+
 function setBuffer(val, fromInput = false) {
   buffer = Math.min(200, Math.max(50, parseFloat(val) || 100));
   if (!fromInput) document.getElementById('bufferInput').value = buffer;
-  // Update preset button states
-  ['80','100','120'].forEach(v => {
-    document.getElementById('buf' + v).classList.toggle('active', buffer == v);
-  });
+  const sign = buffer > 100 ? '+' : '';
+  const diff = buffer - 100;
+  document.getElementById('bufferDisplay').textContent = buffer === 100 ? '100%' : `${sign}${diff}%`;
+  document.getElementById('bufReset').classList.toggle('active', buffer === 100);
   saveState();
   updateSummary();
   if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
@@ -862,11 +883,53 @@ const NAME_ALIASES = {
   'commitment issues':          'Commitment Issues',
   'match fizz':                 'Match Fizz',
   'hanami':                     'Hanami',
+  // Toast name mismatches
+  'age of aquarius':            'Age of The Aquarius',
+  'caiprinha':                  'Caipirinha',
+  'caipirinha':                 'Caipirinha',
+  'porn star martini':          'Pornstar Martini',
+  'pornstar martini':           'Pornstar Martini',
+  'oaxacan old fashion':        'Oaxacan Old Fashioned',
+  'oaxacan old fashioned':      'Oaxacan Old Fashioned',
+  'gimlet vodka':               'Vodka Gimlet',
+  'vodka gimlet':               'Vodka Gimlet',
+  'jungle bird':                'Jungle Bird',
+  'martini gin':                'Gin Martini',
+  'martini vodka':              'Vodka Martini',
+  'gin martini':                'Gin Martini',
+  'vodka martini':              'Vodka Martini',
+  // NA prefix → suffix
+  'na bmp sour':                'BMP Sour NA',
+  'na lemongrass refresher':    'Lemongrass Refresher NA',
+  'na sideline view':           'Sideline View NA',
+  'na lemongrass swizzle':      'Lemongrass Swizzle NA',
+  'na ubebe colada':            "Ube'Be Colada NA",
+  // ATP location suffix variants
+  'hana mi':                    'Hanami',
+  'hana mi atp':                'Hanami',
 };
 
 function normalizeName(str) {
   return str.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
 }
+
+// Strip Toast location/modifier prefixes and suffixes before lookup
+function cleanToastName(raw) {
+  return raw
+    .replace(/^ITT\s+/i, '')         // "ITT Negroni" → "Negroni"
+    .replace(/\s+(ATP|RC)$/i, '')     // "Hanami ATP" → "Hanami"
+    .replace(/^FEATURE[:\s]+/i, '')   // "FEATURE: Pretty In Pink" → "Pretty In Pink"
+    .trim();
+}
+
+// Items that are not cocktails — skip silently
+const IGNORE_ITEMS = new Set([
+  'club soda', 'soda water', 'mocktail', 'water', 'juice',
+  'classic cocktail', 'classic cocktail atp', 'house cocktail rc',
+  'honest liar atp', 'rummin wild atp', 'calpico milk punch atp',
+  'banana stand rc', 'endless summer rc',
+]);
+
 
 // Build lookup: normalized drink name → canonical name
 const DRINK_LOOKUP = {};
@@ -878,9 +941,16 @@ Object.entries(NAME_ALIASES).forEach(([alias, canonical]) => {
 });
 
 function matchDrinkName(raw) {
-  const norm = normalizeName(raw);
+  // Check ignore list first
+  if (IGNORE_ITEMS.has(raw.toLowerCase().trim())) return '__ignore__';
+  // Try cleaned name (strips ITT, FEATURE, ATP, RC)
+  const cleaned = cleanToastName(raw);
+  const norm = normalizeName(cleaned);
   if (DRINK_LOOKUP[norm]) return DRINK_LOOKUP[norm];
-  // Partial match — if our drink name is contained in the raw name or vice versa
+  // Also try original raw in case cleaning went wrong
+  const normRaw = normalizeName(raw);
+  if (DRINK_LOOKUP[normRaw]) return DRINK_LOOKUP[normRaw];
+  // Partial match
   for (const [key, canonical] of Object.entries(DRINK_LOOKUP)) {
     if (norm.includes(key) || key.includes(norm)) return canonical;
   }
@@ -932,6 +1002,7 @@ function parseCSV(text) {
     if (qty <= 0) { results.skipped.push(rawName); continue; }
 
     const canonical = matchDrinkName(rawName);
+    if (canonical === '__ignore__') { results.skipped.push(rawName); continue; }
     if (canonical) {
       results.matched.push({ name: canonical, qty, raw: rawName });
     } else {
