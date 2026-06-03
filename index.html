@@ -200,18 +200,31 @@ header {
   text-transform: uppercase; letter-spacing: 0.6px;
 }
 
+/* ── Buffer Control ── */
+.buffer-control {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+}
+.buffer-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap; }
+.buffer-presets { display: flex; gap: 4px; }
+.buffer-preset {
+  padding: 3px 10px; border-radius: 5px; border: 1px solid var(--border);
+  background: none; color: var(--muted); cursor: pointer; font-size: 11px; font-weight: 600;
+  transition: all 0.12s;
+}
+.buffer-preset:hover { border-color: var(--gold); color: var(--gold); }
+.buffer-preset.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.buffer-custom { display: flex; align-items: center; gap: 4px; }
+.buffer-input {
+  width: 52px; background: var(--surface); border: 1px solid var(--border);
+  color: var(--text); padding: 3px 6px; border-radius: 5px;
+  font-size: 12px; font-weight: 700; text-align: center;
+}
+.buffer-input:focus { outline: none; border-color: var(--gold); }
+
 /* ── Toggle unused ── */
 .toggle-unused { margin-top: 16px; }
-
-/* ── Print ── */
-@media print {
-  header .header-controls, .summary-bar, .tabs { display: none !important; }
-  .tab-content { display: block !important; padding: 16px; }
-  body { background: white; color: black; font-size: 12px; }
-  .qty-input, .onhand-input { border: 1px solid #ccc; }
-  .oz-needed { color: #333 !important; }
-  .net-positive { color: #1a7a3e !important; }
-}
 </style>
 </head>
 <body>
@@ -228,7 +241,7 @@ header {
       <input type="date" id="weekDate">
     </div>
     <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
-    <button class="btn" onclick="window.print()">Print / Export</button>
+    <button class="btn" onclick="printPrepSheet()">🖨 Print Prep Sheet</button>
     <button class="btn btn-primary" onclick="showTab('pars')">View Pars →</button>
   </div>
 </header>
@@ -246,6 +259,21 @@ header {
   <div class="stat">
     <span class="stat-label">Total Oz to Prep</span>
     <span class="stat-value" id="statOz">0</span>
+  </div>
+  <div style="margin-left:auto">
+    <div class="buffer-control">
+      <span class="buffer-label">Par Buffer</span>
+      <div class="buffer-presets">
+        <button class="buffer-preset" onclick="setBuffer(80)" id="buf80">−20%</button>
+        <button class="buffer-preset active" onclick="setBuffer(100)" id="buf100">Normal</button>
+        <button class="buffer-preset" onclick="setBuffer(120)" id="buf120">+20%</button>
+      </div>
+      <div class="buffer-custom">
+        <input class="buffer-input" type="number" id="bufferInput" value="100" min="50" max="200"
+          oninput="setBuffer(this.value, true)">
+        <span style="font-size:11px;color:var(--muted)">%</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -399,17 +427,20 @@ const DRINKS = [
 
 let sales  = {};   // drinkName  → qty sold
 let onHand = {};   // prepItemId → oz on hand
+let buffer = 100;  // par buffer %
 
 function saveState() {
   try {
     localStorage.setItem('ck_pars_sales',  JSON.stringify(sales));
     localStorage.setItem('ck_pars_onhand', JSON.stringify(onHand));
+    localStorage.setItem('ck_pars_buffer', buffer);
   } catch(e) {}
 }
 function loadState() {
   try {
     sales  = JSON.parse(localStorage.getItem('ck_pars_sales'))  || {};
     onHand = JSON.parse(localStorage.getItem('ck_pars_onhand')) || {};
+    buffer = parseFloat(localStorage.getItem('ck_pars_buffer')) || 100;
   } catch(e) {}
 }
 
@@ -417,13 +448,14 @@ function loadState() {
 //  CALCULATIONS
 // ══════════════════════════════════════════════════════════════════════════════
 
-function calcNeeded() {
+function calcNeeded(applyBuffer = false) {
   const totals = {};
+  const mult = applyBuffer ? (buffer / 100) : 1;
   DRINKS.forEach(d => {
     const qty = parseFloat(sales[d.name]) || 0;
     if (!qty) return;
     Object.entries(d.ing).forEach(([id, oz]) => {
-      totals[id] = (totals[id] || 0) + oz * qty;
+      totals[id] = (totals[id] || 0) + oz * qty * mult;
     });
   });
   return totals;
@@ -488,7 +520,7 @@ function renderSales() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderPars() {
-  const needed = calcNeeded();
+  const needed = calcNeeded(true);
   const activeIds = new Set(Object.keys(needed).filter(id => needed[id] > 0));
   Object.keys(onHand).forEach(id => { if (onHand[id] > 0) activeIds.add(id); });
 
@@ -561,7 +593,7 @@ function renderPars() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function updateSummary() {
-  const needed = calcNeeded();
+  const needed = calcNeeded(true);
   const totalSold  = Object.values(sales).reduce((s, v) => s + (parseFloat(v)||0), 0);
   const itemCount  = Object.keys(needed).filter(id => needed[id] > 0).length;
   const totalOz    = Object.values(needed).reduce((s, v) => s + v, 0);
@@ -570,6 +602,105 @@ function updateSummary() {
   document.getElementById('statItems').textContent = itemCount;
   document.getElementById('statOz').textContent    = totalOz.toFixed(1);
   document.getElementById('parsBadge').textContent = itemCount;
+}
+
+function setBuffer(val, fromInput = false) {
+  buffer = Math.min(200, Math.max(50, parseFloat(val) || 100));
+  if (!fromInput) document.getElementById('bufferInput').value = buffer;
+  // Update preset button states
+  ['80','100','120'].forEach(v => {
+    document.getElementById('buf' + v).classList.toggle('active', buffer == v);
+  });
+  saveState();
+  updateSummary();
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PRINT PREP SHEET
+// ══════════════════════════════════════════════════════════════════════════════
+
+function printPrepSheet() {
+  const needed = calcNeeded(true);
+  const weekDate = document.getElementById('weekDate').value;
+  const bufferNote = buffer !== 100 ? ` (${buffer}% buffer applied)` : '';
+  const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
+
+  let rows = '';
+  categories.forEach(cat => {
+    const items = PREP_ITEMS.filter(p => (needed[p.id] || 0) > 0 && p.cat === cat);
+    if (!items.length) return;
+
+    rows += `<tr class="cat-row"><td colspan="4">${cat}</td></tr>`;
+    items.forEach(p => {
+      const need = needed[p.id] || 0;
+      const hand = onHand[p.id] || 0;
+      const net  = Math.max(0, need - hand);
+      const drivers = DRINKS
+        .filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0)
+        .map(d => `${d.name} ×${parseInt(sales[d.name])}`)
+        .join(', ');
+      rows += `
+        <tr>
+          <td class="item-name">${p.name}</td>
+          <td class="item-need">${need.toFixed(1)} oz</td>
+          <td class="item-net">${net > 0 ? net.toFixed(1) + ' oz' : '✓ Covered'}</td>
+          <td class="item-check"><div class="check-box"></div></td>
+        </tr>
+        <tr class="driver-row"><td colspan="4">${drivers}</td></tr>`;
+    });
+  });
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>CK Manga — Prep Sheet ${weekDate}</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, Arial, sans-serif; font-size: 13px; color: #111; padding: 20px 28px; }
+  .sheet-header { border-bottom: 3px solid #111; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sheet-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .sheet-meta { font-size: 12px; color: #555; text-align: right; line-height: 1.6; }
+  .buffer-tag { display: inline-block; background: #f0e8d0; color: #8a5e00; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; }
+  .cat-row td { background: #f4f4f4; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; padding: 8px 10px 4px; border-top: 1px solid #ddd; }
+  tr td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+  .item-name { font-weight: 600; font-size: 14px; width: 40%; }
+  .item-need { color: #555; font-size: 13px; width: 18%; }
+  .item-net { font-weight: 700; font-size: 15px; color: #1a6e3e; width: 22%; }
+  .item-net:not(:empty) { }
+  .item-check { width: 10%; text-align: center; }
+  .check-box { width: 22px; height: 22px; border: 2px solid #aaa; border-radius: 4px; margin: 0 auto; }
+  .driver-row td { font-size: 11px; color: #999; padding: 0 10px 7px; border-bottom: 1px solid #eee; }
+  .footer { margin-top: 20px; font-size: 11px; color: #aaa; text-align: center; }
+  @media print { body { padding: 12px; } .footer { position: fixed; bottom: 10px; width: 100%; } }
+</style>
+</head><body>
+  <div class="sheet-header">
+    <div>
+      <div class="sheet-title">CK Manga — Prep Sheet</div>
+      <div style="font-size:13px;color:#444;margin-top:4px">Week of ${weekDate}${bufferNote ? '<br><span class="buffer-tag">'+bufferNote+'</span>' : ''}</div>
+    </div>
+    <div class="sheet-meta">
+      Printed: ${new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'})}<br>
+      <strong>On Hand</strong> = what's already prepped &nbsp;·&nbsp; <strong>To Prep</strong> = what you need to make
+    </div>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">PREP ITEM</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">TOTAL NEEDED</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">TO PREP</th>
+      <th style="text-align:center;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">✓</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">CK Manga Bar Prep · Generated by Bar Par Calculator</div>
+<script>window.onload = () => window.print();<\/script>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
