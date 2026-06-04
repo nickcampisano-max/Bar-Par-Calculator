@@ -33,8 +33,6 @@ header {
 .brand h1 { font-size: 16px; font-weight: 700; color: var(--gold); letter-spacing: 0.3px; }
 .brand span { font-size: 11px; color: var(--muted); }
 .header-controls { display: flex; gap: 8px; align-items: center; margin-left: auto; flex-wrap: wrap; }
-.date-label { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
-.date-label input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 5px; font-size: 12px; }
 .btn { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 500; transition: all 0.12s; white-space: nowrap; }
 .btn:hover { border-color: var(--gold); color: var(--gold); }
 .btn-primary { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
@@ -245,11 +243,7 @@ header {
     <span>Sales → Prep Needs · Both Locations</span>
   </div>
   <div class="header-controls">
-    <div class="date-label">
-      Week of
-      <input type="date" id="weekDate">
-    </div>
-    <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
+<button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
     <button class="btn" onclick="printPrepSheet()">🖨 Print Prep Sheet</button>
     <button class="btn btn-primary" onclick="showTab('pars')">View Pars →</button>
   </div>
@@ -737,7 +731,7 @@ function setBuffer(val, fromInput = false) {
 
 function printPrepSheet() {
   const needed = calcNeeded(true);
-  const weekDate = document.getElementById('weekDate').value;
+  const weekDate = new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
   const bufferNote = buffer !== 100 ? ` (${buffer}% buffer applied)` : '';
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
 
@@ -768,7 +762,7 @@ function printPrepSheet() {
 
   const html = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
-<title>Prep Sheet ${weekDate}</title>
+<title>Prep Sheet</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, Arial, sans-serif; font-size: 13px; color: #111; padding: 20px 28px; }
@@ -793,7 +787,7 @@ function printPrepSheet() {
   <div class="sheet-header">
     <div>
       <div class="sheet-title">Prep Sheet</div>
-      <div style="font-size:13px;color:#444;margin-top:4px">Week of ${weekDate}${bufferNote ? '<br><span class="buffer-tag">'+bufferNote+'</span>' : ''}</div>
+      <div style="font-size:13px;color:#444;margin-top:4px">Printed: ${weekDate}${bufferNote ? '&nbsp;·&nbsp;<span class="buffer-tag">'+bufferNote+'</span>' : ''}</div>
     </div>
     <div class="sheet-meta">
       Printed: ${new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'})}<br>
@@ -1104,7 +1098,6 @@ function readAndParse(file) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('weekDate').valueAsDate = new Date();
   loadState();
   renderSales();
   updateSummary();
