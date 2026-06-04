@@ -232,18 +232,6 @@ header {
 
 /* ── Historical avg hint ── */
 .hist-avg { font-size: 10px; color: var(--muted); margin-top: 2px; }
-/* ── Trend badge on sales row ── */
-.trend-badge { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
-.trend-up   { background:rgba(34,197,94,.15); color:#22c55e; }
-.trend-down { background:rgba(239,68,68,.15);  color:#ef4444; }
-.trend-flat { background:rgba(148,163,184,.12); color:var(--muted); }
-/* ── Trend summary box ── */
-.trend-box { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:18px; }
-.trend-box-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:10px; }
-.trend-movers { display:flex; flex-wrap:wrap; gap:6px; }
-.trend-mover { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:12px; }
-.trend-mover-name { color:var(--text); font-weight:600; }
-.trend-mover-pct { font-weight:700; font-size:11px; }
 /* ── Toggle unused ── */
 .toggle-unused { margin-top: 16px; }
 </style>
@@ -304,6 +292,9 @@ header {
     2 · Prep Pars
     <span class="badge" id="parsBadge">0</span>
   </button>
+  <button class="tab-btn" id="tabBtnYields" onclick="showTab('yields')">
+    3 · Yields Guide
+  </button>
 </div>
 
 <!-- ════════════════════════════════ SALES TAB ═══════════════════════════════ -->
@@ -333,6 +324,11 @@ header {
 <!-- ════════════════════════════════= PARS TAB ═══════════════════════════════ -->
 <div class="tab-content" id="tab-pars">
   <div id="parsContent"></div>
+</div>
+
+<!-- ══════════════════════════════ YIELDS TAB ════════════════════════════════ -->
+<div class="tab-content" id="tab-yields">
+  <div id="yieldsContent"></div>
 </div>
 
 <script>
@@ -649,7 +645,7 @@ function renderSales() {
             <input class="qty-input${qty ? ' has-value' : ''}" type="number" min="0" step="1"
               value="${qty}" placeholder="0"
               oninput="setSales('${safe}', this.value); this.classList.toggle('has-value', !!this.value)">
-            ${HISTORICAL_AVG[d.name] ? `<div class="hist-avg">2025 avg: ~${Math.round(HISTORICAL_AVG[d.name])}/wk</div>` : ''}
+            ${HISTORICAL_AVG[d.name] ? `<div class="hist-avg">↳ sold ~${Math.round(HISTORICAL_AVG[d.name])}/wk on average in 2025</div>` : ''}
           </td>
         </tr>`;
     });
@@ -664,39 +660,6 @@ function renderSales() {
 //  RENDER — PARS
 // ══════════════════════════════════════════════════════════════════════════════
 
-function buildTrendBox() {
-  const movers = [];
-  DRINKS.forEach(d => {
-    const sold = parseFloat(sales[d.name]) || 0;
-    const avg = HISTORICAL_AVG[d.name];
-    if (!avg || avg < 2 || !sold) return;
-    const pct = ((sold - avg) / avg) * 100;
-    if (Math.abs(pct) >= 15) movers.push({ name: d.name, sold, avg, pct });
-  });
-  if (!movers.length) return '';
-  movers.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
-  const top = movers.slice(0, 8);
-  const totalSold = DRINKS.reduce((s, d) => s + (parseFloat(sales[d.name]) || 0), 0);
-  const tracked = DRINKS.filter(d => HISTORICAL_AVG[d.name] && (parseFloat(sales[d.name]) || 0) > 0);
-  const overallPct = tracked.length ? tracked.reduce((s, d) => {
-    const sold = parseFloat(sales[d.name]); const avg = HISTORICAL_AVG[d.name];
-    return s + ((sold - avg) / avg);
-  }, 0) / tracked.length * 100 : 0;
-  const overallCls = overallPct > 10 ? 'trend-up' : overallPct < -10 ? 'trend-down' : 'trend-flat';
-  const overallTxt = (overallPct > 0 ? '+' : '') + overallPct.toFixed(0) + '% vs 2025 avg';
-  const moverHtml = top.map(m => {
-    const cls = m.pct > 0 ? 'trend-up' : 'trend-down';
-    const arrow = m.pct > 0 ? '↑' : '↓';
-    return `<div class="trend-mover">
-      <span class="trend-mover-name">${m.name}</span>
-      <span class="trend-mover-pct ${cls}">${arrow}${Math.abs(m.pct).toFixed(0)}%</span>
-    </div>`;
-  }).join('');
-  return `<div class="trend-box">
-    <div class="trend-box-title">Sales Trend vs 2025 Average &nbsp;<span class="trend-badge ${overallCls}">${overallTxt}</span></div>
-    <div class="trend-movers">${moverHtml}</div>
-  </div>`;
-}
 
 function renderPars() {
   const needed = calcNeeded(true);
@@ -713,7 +676,7 @@ function renderPars() {
   }
 
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
-  let html = buildTrendBox();
+  let html = '';
 
   categories.forEach(cat => {
     const items = PREP_ITEMS.filter(p => activeIds.has(p.id) && p.cat === cat);
@@ -916,11 +879,181 @@ function setOnHand(id, val) {
 }
 
 function showTab(tab) {
-  ['sales','pars'].forEach(t => {
+  ['sales','pars','yields'].forEach(t => {
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
     document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
   });
   if (tab === 'pars') renderPars();
+  if (tab === 'yields') renderYields();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  RENDER — YIELDS GUIDE
+// ══════════════════════════════════════════════════════════════════════════════
+
+const YIELD_DATA = [
+  {
+    category: 'Citrus Fruits',
+    items: [
+      { name: 'Lemon', emoji: '🍋', caseCount: 115, yieldPerFruit: 1.4, notes: 'Medium (115-ct case). Room temp + roll before juicing for best yield.' },
+      { name: 'Lime', emoji: '🟢', caseCount: 48, yieldPerFruit: 1.0, notes: 'Persian lime (48-ct case). Key limes yield less (~0.5 oz each).' },
+      { name: 'Grapefruit', emoji: '🍊', caseCount: 27, yieldPerFruit: 4.0, notes: 'Ruby Red (27-ct case). Larger fruit = more juice; press fully.' },
+      { name: 'Orange (Navel)', emoji: '🍊', caseCount: 72, yieldPerFruit: 2.5, notes: 'For garnish/zest. Valencia oranges yield more juice (~3.5 oz).' },
+      { name: 'Orange (Valencia)', emoji: '🍊', caseCount: 72, yieldPerFruit: 3.5, notes: 'Juice oranges — preferred for fresh-squeezed. 72-ct case.' },
+    ]
+  },
+  {
+    category: 'Juice Conversions',
+    items: [
+      { name: 'Lemon Juice', emoji: '🍋', unit: 'oz → lemons', caseCount: null, yieldPerFruit: null, isConversion: true,
+        conversions: [
+          { qty: 16, label: '1 cup (16 oz)', result: '~11–12 lemons' },
+          { qty: 32, label: '1 quart (32 oz)', result: '~22–24 lemons' },
+          { qty: 64, label: '½ gallon (64 oz)', result: '~45–46 lemons' },
+          { qty: 128, label: '1 gallon (128 oz)', result: '~90–92 lemons (~1 case)' },
+        ]
+      },
+      { name: 'Lime Juice', emoji: '🟢', unit: 'oz → limes', caseCount: null, yieldPerFruit: null, isConversion: true,
+        conversions: [
+          { qty: 16, label: '1 cup (16 oz)', result: '~16 limes' },
+          { qty: 32, label: '1 quart (32 oz)', result: '~32 limes' },
+          { qty: 48, label: '~1 case yield (48 oz)', result: '48 limes (1 full case)' },
+          { qty: 64, label: '½ gallon (64 oz)', result: '~64 limes (1⅓ cases)' },
+        ]
+      },
+      { name: 'Grapefruit Juice', emoji: '🍊', unit: 'oz → grapefruits', caseCount: null, yieldPerFruit: null, isConversion: true,
+        conversions: [
+          { qty: 16, label: '1 cup (16 oz)', result: '~4 grapefruits' },
+          { qty: 32, label: '1 quart (32 oz)', result: '~8 grapefruits' },
+          { qty: 64, label: '½ gallon (64 oz)', result: '~16 grapefruits' },
+          { qty: 108, label: '~1 case yield (108 oz)', result: '27 grapefruits (1 full case)' },
+        ]
+      },
+    ]
+  },
+  {
+    category: 'Bar Tips',
+    tips: [
+      { icon: '🌡️', tip: 'Always juice citrus at room temperature — cold fruit yields 20–30% less juice.' },
+      { icon: '🙌', tip: 'Roll citrus firmly on the counter before cutting to break down the cells and maximize yield.' },
+      { icon: '⚡', tip: 'A commercial press (Sunkist, Hamilton Beach) yields ~15–20% more than hand squeezing.' },
+      { icon: '🧊', tip: 'Fresh-squeezed citrus lasts 2–3 days refrigerated before flavor degrades noticeably.' },
+      { icon: '📏', tip: '1 gallon = 128 oz = 8 cups = 4 quarts. Batch in quarts for easy scaling.' },
+      { icon: '🍋', tip: 'Spent lemon/lime halves: simmer with sugar + water for a DIY "spent citrus" syrup (secondary use).' },
+    ]
+  }
+];
+
+function renderYields() {
+  let html = `<div style="padding:24px; max-width:900px; margin:0 auto;">
+    <h2 style="color:var(--gold); font-size:18px; margin-bottom:4px;">Citrus Yields Reference Guide</h2>
+    <p style="color:var(--muted); font-size:12px; margin-bottom:24px;">Industry standard yields — actual results vary by fruit size, temperature, and equipment.</p>`;
+
+  // Citrus Fruits table
+  const citrus = YIELD_DATA[0];
+  html += `<div style="margin-bottom:28px;">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); margin-bottom:10px;">${citrus.category}</div>
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left; padding:8px 12px; font-size:11px; color:var(--muted); font-weight:600;">Fruit</th>
+          <th style="text-align:center; padding:8px 12px; font-size:11px; color:var(--muted); font-weight:600;">Case Count</th>
+          <th style="text-align:center; padding:8px 12px; font-size:11px; color:var(--muted); font-weight:600;">Yield / Fruit</th>
+          <th style="text-align:center; padding:8px 12px; font-size:11px; color:var(--muted); font-weight:600;">Total / Case</th>
+          <th style="text-align:left; padding:8px 12px; font-size:11px; color:var(--muted); font-weight:600;">Notes</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  citrus.items.forEach((item, i) => {
+    const caseYield = item.caseCount * item.yieldPerFruit;
+    const caseOz = caseYield.toFixed(0);
+    const caseCups = (caseYield / 8).toFixed(1);
+    const caseQts = (caseYield / 32).toFixed(1);
+    html += `<tr style="border-bottom:1px solid var(--border); ${i % 2 === 0 ? 'background:rgba(255,255,255,0.02)' : ''}">
+      <td style="padding:10px 12px; font-weight:600;">${item.emoji} ${item.name}</td>
+      <td style="padding:10px 12px; text-align:center; color:var(--gold);">${item.caseCount}-ct</td>
+      <td style="padding:10px 12px; text-align:center;">~${item.yieldPerFruit} oz</td>
+      <td style="padding:10px 12px; text-align:center;">
+        <span style="color:var(--gold); font-weight:700;">${caseOz} oz</span>
+        <span style="color:var(--muted); font-size:11px; display:block;">${caseCups} cups / ${caseQts} qts</span>
+      </td>
+      <td style="padding:10px 12px; color:var(--muted); font-size:12px;">${item.notes}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>`;
+
+  // Juice Conversion tables
+  const juiceData = YIELD_DATA[1];
+  html += `<div style="margin-bottom:28px;">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); margin-bottom:10px;">${juiceData.category}</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">`;
+
+  juiceData.items.forEach(item => {
+    html += `<div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px;">
+      <div style="font-weight:700; margin-bottom:10px; font-size:13px;">${item.emoji} ${item.name}</div>`;
+    item.conversions.forEach(c => {
+      html += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border); font-size:12px;">
+        <span style="color:var(--muted);">${c.label}</span>
+        <span style="color:var(--gold); font-weight:600;">${c.result}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `</div></div>`;
+
+  // Tips
+  const tipsData = YIELD_DATA[2];
+  html += `<div>
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); margin-bottom:10px;">${tipsData.category}</div>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">`;
+
+  tipsData.tips.forEach(t => {
+    html += `<div style="background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:flex; gap:10px; align-items:flex-start;">
+      <span style="font-size:18px; line-height:1;">${t.icon}</span>
+      <span style="font-size:12px; color:var(--muted); line-height:1.5;">${t.tip}</span>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  // Quick calculator
+  html += `<div style="margin-top:28px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:18px;">
+    <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.8px; color:var(--muted); margin-bottom:12px;">Quick Fruit Calculator</div>
+    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <select id="yieldFruit" onchange="calcYield()" style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:6px 10px; font-size:13px;">
+        <option value="1.4">Lemon (1.4 oz/fruit)</option>
+        <option value="1.0">Lime (1.0 oz/fruit)</option>
+        <option value="4.0">Grapefruit (4.0 oz/fruit)</option>
+        <option value="2.5">Orange Navel (2.5 oz/fruit)</option>
+        <option value="3.5">Orange Valencia (3.5 oz/fruit)</option>
+      </select>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <label style="color:var(--muted); font-size:12px;">I have</label>
+        <input id="yieldQty" type="number" min="1" value="48" oninput="calcYield()"
+          style="width:70px; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:6px 8px; font-size:13px; text-align:center;">
+        <label style="color:var(--muted); font-size:12px;">fruits</label>
+      </div>
+      <div id="yieldResult" style="color:var(--gold); font-weight:700; font-size:14px;"></div>
+    </div>
+  </div>`;
+
+  html += `</div>`;
+  document.getElementById('yieldsContent').innerHTML = html;
+  calcYield();
+}
+
+function calcYield() {
+  const oz = parseFloat(document.getElementById('yieldFruit').value) || 1.4;
+  const qty = parseInt(document.getElementById('yieldQty').value) || 0;
+  if (!qty) { document.getElementById('yieldResult').textContent = ''; return; }
+  const total = qty * oz;
+  const cups = (total / 8).toFixed(1);
+  const qts = (total / 32).toFixed(2);
+  document.getElementById('yieldResult').textContent =
+    `= ~${total.toFixed(0)} oz  ·  ${cups} cups  ·  ${qts} qts`;
 }
 
 function clearSales() {
