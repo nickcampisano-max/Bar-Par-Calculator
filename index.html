@@ -230,6 +230,20 @@ header {
 }
 .buffer-input:focus { outline: none; border-color: var(--gold); }
 
+/* ── Historical avg hint ── */
+.hist-avg { font-size: 10px; color: var(--muted); margin-top: 2px; }
+/* ── Trend badge on sales row ── */
+.trend-badge { display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:4px; margin-left:6px; vertical-align:middle; }
+.trend-up   { background:rgba(34,197,94,.15); color:#22c55e; }
+.trend-down { background:rgba(239,68,68,.15);  color:#ef4444; }
+.trend-flat { background:rgba(148,163,184,.12); color:var(--muted); }
+/* ── Trend summary box ── */
+.trend-box { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin-bottom:18px; }
+.trend-box-title { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-bottom:10px; }
+.trend-movers { display:flex; flex-wrap:wrap; gap:6px; }
+.trend-mover { display:flex; align-items:center; gap:5px; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:12px; }
+.trend-mover-name { color:var(--text); font-weight:600; }
+.trend-mover-pct { font-weight:700; font-size:11px; }
 /* ── Toggle unused ── */
 .toggle-unused { margin-top: 16px; }
 </style>
@@ -408,6 +422,31 @@ const PREP_ITEMS = [
 ];
 
 const PREP_MAP = Object.fromEntries(PREP_ITEMS.map(p => [p.id, p]));
+
+// ── 2025 Historical Weekly Averages (annual total ÷ 52 weeks) ─────────────
+const HISTORICAL_AVG = {
+  'Enabler': 63.2, 'Lemongrass Swizzle': 53.2, 'Riding The Pine': 49.5,
+  'Pornstar Martini': 28.8, 'Old Fashioned': 25.9, 'Thai Berry Soda': 25.8,
+  'Pina Colada': 19.8, 'Paloma': 19.1, 'Long Thailand Iced Tea': 18.7,
+  'Mai Tai': 18.3, 'Oaxacan Old Fashioned': 18.2, 'Bees Knees': 17.0,
+  'French 75': 15.5, "Tommy's Margarita": 14.9, 'Lemongrass Refresher NA': 14.7,
+  'Mojito': 14.4, 'Patent Pending': 13.6, 'Moscow Mule': 13.4,
+  'Berry White': 9.9, 'Aviation': 9.1, 'Riding The Pine NA': 8.8,
+  'Conversation Starter NA': 7.8, 'Age of The Aquarius': 7.6,
+  'Sideline View NA': 7.3, 'Ba New New': 6.8, "Don't Carrot All": 6.4,
+  'Martini Vodka': 6.3, 'Say Less': 6.2, 'Overnight': 6.0,
+  'Trees Have Eyes': 5.9, 'Thai Gimlet': 5.8, 'Manhattan': 5.8,
+  'Negroni': 5.6, 'Jungle Bird': 5.4, 'Golden Elixir': 5.2,
+  'Gold Rush': 4.8, 'Penicillin': 4.5, 'Martini Gin': 4.0,
+  'French 95': 3.8, 'Hey Bartender!': 3.8, 'Old Cuban': 3.5,
+  'Mr. Paradise': 3.4, 'Dark and Stormy': 2.9, 'Southside': 2.9,
+  'Uncle Adzuki': 2.9, 'Boulevardier': 2.7, 'Shifting Sands': 2.4,
+  'Koi-Chelada': 2.4, "Thai'd Up": 2.4, 'Caipirinha': 2.3, 'Daiquiri': 2.3,
+  'Army Navy': 2.3, 'Vodka Gimlet': 1.8, 'Sidecar': 1.6,
+  'Gin and Tonic': 1.0, 'BMP Sour NA': 1.3, 'Lemon Drop': 0.7,
+  'Whiskey Sour': 0.7, 'Pimm\'s Cup': 0.3, 'Berry Beri': 10.5,
+  'Lemongrass Swizzle NA': 12.0, 'Scarlet Sora': 8.7,
+};
 
 const DRINKS = [
   // ── CKC Manga ─────────────────────────────────────────────────────────────
@@ -610,6 +649,7 @@ function renderSales() {
             <input class="qty-input${qty ? ' has-value' : ''}" type="number" min="0" step="1"
               value="${qty}" placeholder="0"
               oninput="setSales('${safe}', this.value); this.classList.toggle('has-value', !!this.value)">
+            ${HISTORICAL_AVG[d.name] ? `<div class="hist-avg">2025 avg: ~${Math.round(HISTORICAL_AVG[d.name])}/wk</div>` : ''}
           </td>
         </tr>`;
     });
@@ -623,6 +663,40 @@ function renderSales() {
 // ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — PARS
 // ══════════════════════════════════════════════════════════════════════════════
+
+function buildTrendBox() {
+  const movers = [];
+  DRINKS.forEach(d => {
+    const sold = parseFloat(sales[d.name]) || 0;
+    const avg = HISTORICAL_AVG[d.name];
+    if (!avg || avg < 2 || !sold) return;
+    const pct = ((sold - avg) / avg) * 100;
+    if (Math.abs(pct) >= 15) movers.push({ name: d.name, sold, avg, pct });
+  });
+  if (!movers.length) return '';
+  movers.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
+  const top = movers.slice(0, 8);
+  const totalSold = DRINKS.reduce((s, d) => s + (parseFloat(sales[d.name]) || 0), 0);
+  const tracked = DRINKS.filter(d => HISTORICAL_AVG[d.name] && (parseFloat(sales[d.name]) || 0) > 0);
+  const overallPct = tracked.length ? tracked.reduce((s, d) => {
+    const sold = parseFloat(sales[d.name]); const avg = HISTORICAL_AVG[d.name];
+    return s + ((sold - avg) / avg);
+  }, 0) / tracked.length * 100 : 0;
+  const overallCls = overallPct > 10 ? 'trend-up' : overallPct < -10 ? 'trend-down' : 'trend-flat';
+  const overallTxt = (overallPct > 0 ? '+' : '') + overallPct.toFixed(0) + '% vs 2025 avg';
+  const moverHtml = top.map(m => {
+    const cls = m.pct > 0 ? 'trend-up' : 'trend-down';
+    const arrow = m.pct > 0 ? '↑' : '↓';
+    return `<div class="trend-mover">
+      <span class="trend-mover-name">${m.name}</span>
+      <span class="trend-mover-pct ${cls}">${arrow}${Math.abs(m.pct).toFixed(0)}%</span>
+    </div>`;
+  }).join('');
+  return `<div class="trend-box">
+    <div class="trend-box-title">Sales Trend vs 2025 Average &nbsp;<span class="trend-badge ${overallCls}">${overallTxt}</span></div>
+    <div class="trend-movers">${moverHtml}</div>
+  </div>`;
+}
 
 function renderPars() {
   const needed = calcNeeded(true);
@@ -639,7 +713,7 @@ function renderPars() {
   }
 
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
-  let html = '';
+  let html = buildTrendBox();
 
   categories.forEach(cat => {
     const items = PREP_ITEMS.filter(p => activeIds.has(p.id) && p.cat === cat);
