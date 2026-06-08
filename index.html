@@ -295,6 +295,10 @@ header {
   <button class="tab-btn" id="tabBtnYields" onclick="showTab('yields')">
     3 · Yields Guide
   </button>
+  <button class="tab-btn" id="tabBtnWaste" onclick="showTab('waste')">
+    4 · Waste Log
+    <span class="badge" id="wasteBadge" style="display:none"></span>
+  </button>
 </div>
 
 <!-- ════════════════════════════════ SALES TAB ═══════════════════════════════ -->
@@ -329,6 +333,11 @@ header {
 <!-- ══════════════════════════════ YIELDS TAB ════════════════════════════════ -->
 <div class="tab-content" id="tab-yields">
   <div id="yieldsContent"></div>
+</div>
+
+<!-- ═══════════════════════════════ WASTE TAB ════════════════════════════════ -->
+<div class="tab-content" id="tab-waste">
+  <div id="wasteContent"></div>
 </div>
 
 <script>
@@ -559,28 +568,37 @@ const DRINKS = [
   { name:'Sidecar',                  menu:'Classics', ing:{ lemon:0.75, simple_s:0.5 } },
   { name:'Tuxedo No. 2',            menu:'Classics', ing:{} },
   { name:'Rossini',                  menu:'Classics', ing:{ strawberry_p:0.5 } },
+  { name:'Oaxacan Old Fashioned',    menu:'Classics', ing:{ agave_s:0.25 } },
+  { name:'Sherry Cobbler',           menu:'Classics', ing:{ lemon:0.25, simple_s:0.5 } },
+  // ── Feature / Rotating Specials ──────────────────────────────────────────
+  { name:'House Spritz',             menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
+  { name:'Pretty In Pink',           menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
+  { name:'The Face Planter Punch',   menu:'CKC Manga',ing:{}, note:'Batch punch — add recipe' },
 ];
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  STATE  (in-memory; localStorage for persistence across reloads)
 // ══════════════════════════════════════════════════════════════════════════════
 
-let sales  = {};   // drinkName  → qty sold
-let onHand = {};   // prepItemId → oz on hand
-let buffer = 100;  // par buffer %
+let sales    = {};   // drinkName  → qty sold
+let onHand   = {};   // prepItemId → oz on hand
+let buffer   = 100;  // par buffer %
+let wasteLog = [];   // [ { id, date, qty, reason, notes } ]
 
 function saveState() {
   try {
-    localStorage.setItem('ck_pars_sales',  JSON.stringify(sales));
-    localStorage.setItem('ck_pars_onhand', JSON.stringify(onHand));
-    localStorage.setItem('ck_pars_buffer', buffer);
+    localStorage.setItem('ck_pars_sales',     JSON.stringify(sales));
+    localStorage.setItem('ck_pars_onhand',    JSON.stringify(onHand));
+    localStorage.setItem('ck_pars_buffer',    buffer);
+    localStorage.setItem('ck_pars_wastelog',  JSON.stringify(wasteLog));
   } catch(e) {}
 }
 function loadState() {
   try {
-    sales  = JSON.parse(localStorage.getItem('ck_pars_sales'))  || {};
-    onHand = JSON.parse(localStorage.getItem('ck_pars_onhand')) || {};
-    buffer = parseFloat(localStorage.getItem('ck_pars_buffer')) || 100;
+    sales    = JSON.parse(localStorage.getItem('ck_pars_sales'))    || {};
+    onHand   = JSON.parse(localStorage.getItem('ck_pars_onhand'))   || {};
+    buffer   = parseFloat(localStorage.getItem('ck_pars_buffer'))   || 100;
+    wasteLog = JSON.parse(localStorage.getItem('ck_pars_wastelog')) || [];
   } catch(e) {}
 }
 
@@ -879,12 +897,13 @@ function setOnHand(id, val) {
 }
 
 function showTab(tab) {
-  ['sales','pars','yields'].forEach(t => {
+  ['sales','pars','yields','waste'].forEach(t => {
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
     document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
   });
-  if (tab === 'pars') renderPars();
+  if (tab === 'pars')   renderPars();
   if (tab === 'yields') renderYields();
+  if (tab === 'waste')  renderWasteLog();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1056,6 +1075,220 @@ function calcYield() {
     `= ~${total.toFixed(0)} oz  ·  ${cups} cups  ·  ${qts} qts`;
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  RENDER — WASTE LOG
+// ══════════════════════════════════════════════════════════════════════════════
+
+const WASTE_REASONS = ['Spoiled / Expired', 'Wrong batch / Remake', 'Contaminated', 'Spill / Accident', 'Other'];
+
+function updateWasteBadge() {
+  const badge = document.getElementById('wasteBadge');
+  if (!badge) return;
+  if (wasteLog.length > 0) {
+    badge.textContent = wasteLog.length;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderWasteLog() {
+  updateWasteBadge();
+  const today = new Date().toISOString().slice(0, 10);
+
+  // Build waste totals per item for suggestions
+  const wasteTotals = {};
+  wasteLog.forEach(e => {
+    wasteTotals[e.id] = (wasteTotals[e.id] || 0) + e.qty;
+  });
+
+  // Item options for select
+  const itemOptions = PREP_ITEMS.map(p =>
+    `<option value="${p.id}">${p.name}</option>`
+  ).join('');
+
+  // Reason options
+  const reasonOptions = WASTE_REASONS.map(r =>
+    `<option value="${r}">${r}</option>`
+  ).join('');
+
+  // Log entries table
+  let entriesHtml = '';
+  if (wasteLog.length === 0) {
+    entriesHtml = `<div style="text-align:center; padding:32px; color:var(--muted); font-size:13px;">No waste logged yet.</div>`;
+  } else {
+    const sorted = [...wasteLog].reverse(); // newest first
+    entriesHtml = `<table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600;">DATE</th>
+          <th style="text-align:left; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600;">ITEM</th>
+          <th style="text-align:center; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600;">QTY WASTED</th>
+          <th style="text-align:left; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600;">REASON</th>
+          <th style="text-align:left; padding:8px 10px; color:var(--muted); font-size:11px; font-weight:600;">NOTES</th>
+          <th style="padding:8px 10px;"></th>
+        </tr>
+      </thead>
+      <tbody>`;
+    sorted.forEach((e, i) => {
+      const item = PREP_ITEMS.find(p => p.id === e.id);
+      const name = item ? item.name : e.id;
+      entriesHtml += `<tr style="border-bottom:1px solid var(--border); ${i % 2 === 0 ? 'background:rgba(255,255,255,0.015)' : ''}">
+        <td style="padding:9px 10px; color:var(--muted);">${e.date}</td>
+        <td style="padding:9px 10px; font-weight:600;">${name}</td>
+        <td style="padding:9px 10px; text-align:center; color:var(--red); font-weight:700;">${e.qty} oz</td>
+        <td style="padding:9px 10px; color:var(--muted);">${e.reason}</td>
+        <td style="padding:9px 10px; color:var(--muted); font-size:12px;">${e.notes || '—'}</td>
+        <td style="padding:9px 10px; text-align:right;">
+          <button onclick="deleteWaste('${e.logId}')" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:16px; line-height:1; padding:0 4px;" title="Remove entry">×</button>
+        </td>
+      </tr>`;
+    });
+    entriesHtml += `</tbody></table>`;
+  }
+
+  // Par adjustment suggestions
+  let suggestionsHtml = '';
+  const suggestions = Object.entries(wasteTotals).filter(([, oz]) => oz >= 4);
+  if (suggestions.length > 0) {
+    const suggItems = suggestions.map(([id, oz]) => {
+      const item = PREP_ITEMS.find(p => p.id === id);
+      const name = item ? item.name : id;
+      return `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-bottom:1px solid var(--border);">
+        <div>
+          <span style="font-weight:600; font-size:13px;">${name}</span>
+          <span style="color:var(--red); font-size:12px; margin-left:8px;">${oz} oz wasted</span>
+        </div>
+        <div style="font-size:12px; color:var(--muted);">Consider reducing this item's prep by <strong style="color:var(--gold);">~${Math.round(oz * 0.75)} oz</strong> next week</div>
+      </div>`;
+    }).join('');
+    suggestionsHtml = `<div style="margin-bottom:24px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+      <div style="padding:10px 14px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px;">
+        <span style="color:var(--red); font-size:14px;">⚠️</span>
+        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--muted);">Suggested Par Reductions</span>
+        <span style="font-size:11px; color:var(--muted); margin-left:auto;">Based on logged waste this period</span>
+      </div>
+      ${suggItems}
+    </div>`;
+  }
+
+  // Export button
+  const exportBtn = wasteLog.length > 0
+    ? `<button class="btn" onclick="exportWasteCSV()" style="margin-left:auto;">⬇ Export CSV</button>`
+    : '';
+  const clearBtn = wasteLog.length > 0
+    ? `<button class="btn btn-ghost" onclick="clearWasteLog()">Clear Log</button>`
+    : '';
+
+  const html = `<div style="padding:24px; max-width:900px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+      <div>
+        <h2 style="color:var(--gold); font-size:18px; margin-bottom:2px;">Waste Log</h2>
+        <p style="color:var(--muted); font-size:12px;">Track spoiled or expired prep items. Entries are saved on this device.</p>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px;">${exportBtn}${clearBtn}</div>
+    </div>
+
+    <!-- Log Entry Form -->
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:24px;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); margin-bottom:12px;">Log New Waste Entry</div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:160px;">
+          <label style="font-size:11px; color:var(--muted);">Item</label>
+          <select id="wasteItem" style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; font-size:13px;">
+            <option value="">— Select item —</option>
+            ${itemOptions}
+          </select>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; width:90px;">
+          <label style="font-size:11px; color:var(--muted);">Qty (oz)</label>
+          <input id="wasteQty" type="number" min="0.5" step="0.5" placeholder="oz"
+            style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; font-size:13px; text-align:center;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:160px;">
+          <label style="font-size:11px; color:var(--muted);">Reason</label>
+          <select id="wasteReason" style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; font-size:13px;">
+            ${reasonOptions}
+          </select>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; flex:1; min-width:160px;">
+          <label style="font-size:11px; color:var(--muted);">Notes (optional)</label>
+          <input id="wasteNotes" type="text" placeholder="e.g. sat overnight, wrong label..."
+            style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; font-size:13px;">
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; width:130px;">
+          <label style="font-size:11px; color:var(--muted);">Date</label>
+          <input id="wasteDate" type="date" value="${today}"
+            style="background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:7px 10px; font-size:13px;">
+        </div>
+        <button class="btn btn-primary" onclick="addWasteEntry()" style="padding:7px 18px; align-self:flex-end;">Log Waste</button>
+      </div>
+      <div id="wasteFormError" style="color:var(--red); font-size:12px; margin-top:8px; display:none;"></div>
+    </div>
+
+    ${suggestionsHtml}
+
+    <!-- Log Table -->
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; overflow:hidden;">
+      <div style="padding:10px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--muted);">Log Entries</span>
+        ${wasteLog.length > 0 ? `<span style="font-size:11px; color:var(--muted);">${wasteLog.length} entr${wasteLog.length === 1 ? 'y' : 'ies'} · ${Object.values(wasteTotals).reduce((a,b)=>a+b,0).toFixed(1)} oz total wasted</span>` : ''}
+      </div>
+      ${entriesHtml}
+    </div>
+  </div>`;
+
+  document.getElementById('wasteContent').innerHTML = html;
+}
+
+function addWasteEntry() {
+  const itemId  = document.getElementById('wasteItem').value;
+  const qty     = parseFloat(document.getElementById('wasteQty').value);
+  const reason  = document.getElementById('wasteReason').value;
+  const notes   = document.getElementById('wasteNotes').value.trim();
+  const date    = document.getElementById('wasteDate').value;
+  const errEl   = document.getElementById('wasteFormError');
+
+  if (!itemId) { errEl.textContent = 'Please select an item.'; errEl.style.display = ''; return; }
+  if (!qty || qty <= 0) { errEl.textContent = 'Please enter a valid quantity (oz).'; errEl.style.display = ''; return; }
+  errEl.style.display = 'none';
+
+  wasteLog.push({
+    logId: Date.now() + Math.random().toString(36).slice(2),
+    id: itemId, qty, reason, notes, date
+  });
+  saveState();
+  renderWasteLog();
+}
+
+function deleteWaste(logId) {
+  wasteLog = wasteLog.filter(e => e.logId !== logId);
+  saveState();
+  renderWasteLog();
+}
+
+function clearWasteLog() {
+  if (!confirm('Clear all waste log entries?')) return;
+  wasteLog = [];
+  saveState();
+  renderWasteLog();
+}
+
+function exportWasteCSV() {
+  const header = 'Date,Item,Qty (oz),Reason,Notes';
+  const rows = wasteLog.map(e => {
+    const item = PREP_ITEMS.find(p => p.id === e.id);
+    const name = item ? item.name : e.id;
+    return [e.date, `"${name}"`, e.qty, `"${e.reason}"`, `"${(e.notes||'').replace(/"/g,'""')}"`].join(',');
+  });
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `waste-log-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
 function clearSales() {
   if (!confirm('Clear all entered sales quantities?')) return;
   sales = {};
@@ -1117,6 +1350,21 @@ const NAME_ALIASES = {
   'na sideline view':           'Sideline View NA',
   'na lemongrass swizzle':      'Lemongrass Swizzle NA',
   'na ubebe colada':            "Ube'Be Colada NA",
+  'na conversation starter':    'Conversation Starter NA',
+  'na riding the pine':         'Riding The Pine NA',
+  // Toast name variations — classics
+  'dr funk':                    'Doctor Funk',
+  'gimlet gin':                 'Thai Gimlet',
+  'thai gimlet gin':            'Thai Gimlet',
+  'french 75 gin':              'French 75',
+  'french 95 bourb':            'French 95',
+  'sake tini':                  'Saketini',
+  // Feature / rotating specials
+  'spritz':                     'House Spritz',
+  'aperol spritz':              'House Spritz',
+  'pretty in pink':             'Pretty In Pink',
+  'the face planter punch':     'The Face Planter Punch',
+  'face planter punch':         'The Face Planter Punch',
   // ATP drink aliases
   'adobo spritz':               'Adobo Spritz',
   'arizona ronan':              'Arizona Ronan',
@@ -1133,6 +1381,7 @@ const NAME_ALIASES = {
   'eraser gun':                 'Eraser Gun',
   'tuxedo no 2':                'Tuxedo No. 2',
   'tuxedo no2':                 'Tuxedo No. 2',
+  'sherry cobbler':             'Sherry Cobbler',
 };
 
 function normalizeName(str) {
@@ -1154,6 +1403,7 @@ const IGNORE_ITEMS = new Set([
   'classic cocktail', 'classic cocktail atp', 'house cocktail rc',
   'honest liar atp', 'rummin wild atp', 'calpico milk punch atp',
   'banana stand rc', 'endless summer rc',
+  'house aperitivo', 'house aperitivo atp',
 ]);
 
 
@@ -1256,9 +1506,9 @@ function splitCSVLine(line) {
 }
 
 function applyImport(results) {
-  // Apply matched items
+  // Apply matched items — accumulate so ITT/ATP/RC variants sum with the base entry
   results.matched.forEach(({ name, qty }) => {
-    sales[name] = qty;
+    sales[name] = (sales[name] || 0) + qty;
   });
   saveState();
   renderSales();
@@ -1308,6 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   renderSales();
   updateSummary();
+  updateWasteBadge();
 });
 </script>
 </body>
