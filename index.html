@@ -652,7 +652,7 @@ function renderSales() {
       const qty  = sales[d.name] || '';
       const ingParts = Object.entries(d.ing).map(([id, oz]) => {
         const item = PREP_MAP[id];
-        return item ? `<span style="color:var(--text);opacity:.7">${mlVal(oz)}ml</span> ${item.name}` : '';
+        return item ? `<span style="color:var(--text);opacity:.7">${oz}oz (${mlVal(oz)}ml)</span> ${item.name}` : '';
       }).filter(Boolean);
       const ingStr = ingParts.length ? ingParts.join('&ensp;·&ensp;') : '<em style="opacity:.4">no tracked prep</em>';
       const safe = d.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -718,23 +718,14 @@ function renderPars() {
       const surplusMl  = Math.max(0, handMl - needMl);
       const surplusBtl = Math.floor(surplusMl / 750 * 2) / 2;
 
-      // Status always shows full context
+      // Status display
       let statusHtml;
       if (need === 0) {
         statusHtml = '<span style="color:var(--muted)">—</span>';
       } else if (netMl === 0) {
-        const surpTxt = surplusMl > 0
-          ? `+${surplusBtl > 0 ? surplusBtl + ' btl · ' : ''}${surplusMl} ml surplus`
-          : 'exact';
-        statusHtml = `<div style="color:var(--green);font-weight:700;font-size:13px;">Covered ✓</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-            Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
-          </div>`;
+        statusHtml = `<span style="color:var(--green);font-weight:700;font-size:15px;">Covered ✓</span>`;
       } else {
-        statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${netBtl} btl</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-            Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${netMl} ml short</span>
-          </div>`;
+        statusHtml = `${netBtl} btl <span style="font-size:11px;font-weight:400;opacity:.6">(${netMl} ml)</span>`;
       }
 
       // Build per-drink breakdown lines
@@ -767,7 +758,7 @@ function renderPars() {
             </div>
           </div>
           <div class="par-card-net" style="min-width:200px;">
-            <div class="par-card-total-label">This Prep</div>
+            <div class="par-card-total-label">Bottles to Prep</div>
             <div data-netid="${p.id}">${statusHtml}</div>
           </div>
         </div>`;
@@ -949,18 +940,9 @@ function setOnHand(id, val) {
     if (need === 0) {
       statusHtml = '<span style="color:var(--muted)">—</span>';
     } else if (netMl === 0) {
-      const surpTxt = surplusMl > 0
-        ? `+${surplusBtl > 0 ? surplusBtl + ' btl · ' : ''}${surplusMl} ml surplus`
-        : 'exact';
-      statusHtml = `<div style="color:var(--green);font-weight:700;font-size:13px;">Covered ✓</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-          Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
-        </div>`;
+      statusHtml = `<span style="color:var(--green);font-weight:700;font-size:15px;">Covered ✓</span>`;
     } else {
-      statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${netBtl} btl</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-          Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${netMl} ml short</span>
-        </div>`;
+      statusHtml = `${netBtl} btl <span style="font-size:11px;font-weight:400;opacity:.6">(${netMl} ml)</span>`;
     }
     netEl.innerHTML = statusHtml;
   }
