@@ -708,37 +708,32 @@ function renderPars() {
     html += `<div class="par-category-header">${cat}</div>`;
 
     items.forEach(p => {
-      const need       = needed[p.id] || 0;           // oz (internal)
-      const needMl     = mlVal(need);                  // full week ml
-      const sessionMl  = Math.ceil(needMl / 2);        // per prep session (÷2)
-      const needBtl    = Math.ceil(needMl / 750);      // full week bottles
-      const sessBtl    = Math.ceil(sessionMl / 750);   // per session bottles
-      const handMl     = onHand[p.id] || 0;            // ml on hand
-      const handBtl    = handMl / 750;                 // bottles on hand (for input display)
-
-      // Per-session net
-      const sessNetMl  = Math.max(0, sessionMl - handMl);
-      const sessNetBtl = Math.ceil(sessNetMl / 750);
-      const surplusMl  = Math.max(0, handMl - sessionMl);
-      const surplusBtl = Math.floor(surplusMl / 750 * 2) / 2; // round to 0.5
+      const need    = needed[p.id] || 0;           // oz (internal)
+      const needMl  = mlVal(need);                  // ml
+      const needBtl = Math.ceil(needMl / 750);      // bottles needed
+      const handMl  = onHand[p.id] || 0;            // ml on hand
+      const handBtl = handMl / 750;                 // bottles on hand (for input display)
+      const netMl   = Math.max(0, needMl - handMl);
+      const netBtl  = Math.ceil(netMl / 750);
+      const surplusMl  = Math.max(0, handMl - needMl);
+      const surplusBtl = Math.floor(surplusMl / 750 * 2) / 2;
 
       // Status always shows full context
       let statusHtml;
       if (need === 0) {
         statusHtml = '<span style="color:var(--muted)">—</span>';
-      } else if (sessNetMl === 0) {
-        // Covered — show surplus detail
+      } else if (netMl === 0) {
         const surpTxt = surplusMl > 0
-          ? `+${surplusBtl > 0 ? surplusBtl + ' btl' : ''} ${surplusMl} ml surplus`
+          ? `+${surplusBtl > 0 ? surplusBtl + ' btl · ' : ''}${surplusMl} ml surplus`
           : 'exact';
         statusHtml = `<div style="color:var(--green);font-weight:700;font-size:13px;">Covered ✓</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-            Need ${sessBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
+            Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
           </div>`;
       } else {
-        statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${sessNetBtl} btl</div>
+        statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${netBtl} btl</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-            Need ${sessBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${sessNetMl} ml short</span>
+            Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${netMl} ml short</span>
           </div>`;
       }
 
@@ -748,7 +743,7 @@ function renderPars() {
         const qty    = parseInt(sales[d.name]);
         const oz     = d.ing[p.id];
         const subtot = mlVal(qty * oz);
-        return `<span class="breakdown-drink">${d.name}</span> <span class="breakdown-math">×${qty} sold &nbsp;·&nbsp; ${oz} oz each &nbsp;=&nbsp; <strong>${subtot}ml</strong></span>`;
+        return `<span class="breakdown-drink">${d.name}</span> <span class="breakdown-math">×${qty} sold &nbsp;·&nbsp; ${oz} oz (${mlVal(oz)}ml) each &nbsp;=&nbsp; <strong>${subtot}ml</strong></span>`;
       }).join('<br>');
 
       html += `
@@ -758,14 +753,9 @@ function renderPars() {
             <div class="par-card-breakdown">${breakdownLines || '<em style="opacity:.4">no sales</em>'}</div>
           </div>
           <div class="par-card-total">
-            <div class="par-card-total-label">Per Prep (÷2)</div>
-            <div class="oz-needed">${sessBtl}<span class="oz-unit"> btl</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${sessionMl} ml</div>
-          </div>
-          <div class="par-card-total" style="border-left:1px solid var(--border);padding-left:16px;">
-            <div class="par-card-total-label">Full Week</div>
-            <div style="font-size:15px;font-weight:600;color:var(--text)">${needBtl}<span class="oz-unit"> btl</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${needMl} ml</div>
+            <div class="par-card-total-label">Total Needed</div>
+            <div class="oz-needed">${needMl}<span class="oz-unit"> ml</span></div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${needBtl} × 750ml btl</div>
           </div>
           <div class="par-card-onhand">
             <div class="par-card-total-label">On Hand (btl)</div>
@@ -840,32 +830,29 @@ function printPrepSheet() {
       const needMl  = mlVal(need);
       const handMl     = onHand[p.id] || 0;
       const handBtl    = handMl / 750;
-      const sessionMl  = Math.ceil(needMl / 2);
-      const sessBtl    = Math.ceil(sessionMl / 750);
-      const sessNetMl  = Math.max(0, sessionMl - handMl);
-      const sessNetBtl = Math.ceil(sessNetMl / 750);
-      const surplusMl  = Math.max(0, handMl - sessionMl);
-      const surplusBtl = Math.floor(surplusMl / 750 * 2) / 2;
+      const netMl      = Math.max(0, needMl - handMl);
+      const netBtl     = Math.ceil(netMl / 750);
+      const surplusMl  = Math.max(0, handMl - needMl);
       const drivers = DRINKS
         .filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0)
         .map(d => `${d.name} ×${parseInt(sales[d.name])}`)
         .join(', ');
-      let prepCell, sessCell;
+      let prepCell, needCell;
       if (needMl === 0) {
-        sessCell = '—'; prepCell = '—';
-      } else if (sessNetMl === 0) {
+        needCell = '—'; prepCell = '—';
+      } else if (netMl === 0) {
         const surpTxt = surplusMl > 0 ? ` (+${surplusMl} ml surplus)` : ' (exact)';
-        sessCell = `<span style="color:#1a6e3e">✓ Covered${surpTxt}</span>`;
-        prepCell = `Need ${sessBtl} btl · Have ${handBtl} btl`;
+        needCell = `<span style="color:#1a6e3e">✓ Covered${surpTxt}</span>`;
+        prepCell = `Need ${Math.ceil(needMl/750)} btl · Have ${handBtl} btl`;
       } else {
-        sessCell = `<strong>${sessNetBtl} btl</strong> <span style="font-size:11px;color:#777">(${sessNetMl} ml)</span>`;
-        prepCell = `Need ${sessBtl} btl · Have ${handBtl} btl`;
+        needCell = `<strong>${netBtl} btl</strong> <span style="font-size:11px;color:#777">(${netMl} ml)</span>`;
+        prepCell = `Need ${Math.ceil(needMl/750)} btl · Have ${handBtl} btl`;
       }
       rows += `
         <tr>
           <td class="item-name">${p.name}</td>
-          <td class="item-need">${sessionMl} ml<br><span style="font-size:11px;color:#999">wk: ${needMl} ml</span></td>
-          <td class="item-net">${sessCell}</td>
+          <td class="item-need">${needMl} ml</td>
+          <td class="item-net">${needCell}</td>
           <td style="font-size:11px;color:#777;width:25%;vertical-align:middle">${prepCell}</td>
           <td class="item-check"><div class="check-box"></div></td>
         </tr>
@@ -904,13 +891,13 @@ function printPrepSheet() {
     </div>
     <div class="sheet-meta">
       Printed: ${new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'})}<br>
-      <strong>This Prep</strong> = half of weekly total (Mon or Thu) &nbsp;·&nbsp; <strong>Bottles to Prep</strong> = 750ml bottles needed this session
+      <strong>On Hand</strong> = bottles already prepped &nbsp;·&nbsp; <strong>Bottles to Prep</strong> = 750ml bottles needed
     </div>
   </div>
   <table>
     <thead><tr>
       <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">PREP ITEM</th>
-      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">THIS PREP (ml)</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">TOTAL NEEDED</th>
       <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">BOTTLES TO PREP</th>
       <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">NEED · HAVE</th>
       <th style="text-align:center;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">✓</th>
@@ -947,33 +934,32 @@ function setOnHand(id, val) {
   // Update just the status cell in-place — avoids re-render which kills focus
   const netEl = document.querySelector(`[data-netid="${id}"]`);
   if (netEl) {
-    const needed   = calcNeeded(true);
-    const need     = needed[id] || 0;
-    const needMl   = mlVal(need);
-    const sessionMl = Math.ceil(needMl / 2);
-    const sessBtl  = Math.ceil(sessionMl / 750);
-    const handMl   = onHand[id] || 0;
-    const handBtl  = handMl / 750;
-    const sessNetMl  = Math.max(0, sessionMl - handMl);
-    const sessNetBtl = Math.ceil(sessNetMl / 750);
-    const surplusMl  = Math.max(0, handMl - sessionMl);
+    const needed  = calcNeeded(true);
+    const need    = needed[id] || 0;
+    const needMl  = mlVal(need);
+    const needBtl = Math.ceil(needMl / 750);
+    const handMl  = onHand[id] || 0;
+    const handBtl = handMl / 750;
+    const netMl   = Math.max(0, needMl - handMl);
+    const netBtl  = Math.ceil(netMl / 750);
+    const surplusMl  = Math.max(0, handMl - needMl);
     const surplusBtl = Math.floor(surplusMl / 750 * 2) / 2;
 
     let statusHtml;
     if (need === 0) {
       statusHtml = '<span style="color:var(--muted)">—</span>';
-    } else if (sessNetMl === 0) {
+    } else if (netMl === 0) {
       const surpTxt = surplusMl > 0
-        ? `+${surplusBtl > 0 ? surplusBtl + ' btl' : ''} ${surplusMl} ml surplus`
+        ? `+${surplusBtl > 0 ? surplusBtl + ' btl · ' : ''}${surplusMl} ml surplus`
         : 'exact';
       statusHtml = `<div style="color:var(--green);font-weight:700;font-size:13px;">Covered ✓</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-          Need ${sessBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
+          Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--green)">${surpTxt}</span>
         </div>`;
     } else {
-      statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${sessNetBtl} btl</div>
+      statusHtml = `<div style="color:var(--gold);font-weight:700;font-size:15px;">${netBtl} btl</div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">
-          Need ${sessBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${sessNetMl} ml short</span>
+          Need ${needBtl} btl &nbsp;·&nbsp; Have ${handBtl} btl &nbsp;·&nbsp; <span style="color:var(--gold)">${netMl} ml short</span>
         </div>`;
     }
     netEl.innerHTML = statusHtml;
