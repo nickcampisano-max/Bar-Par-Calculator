@@ -5,6 +5,31 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-06-15] — Dual oz/ml Display + Waste Log Improvements
+
+### Added
+- oz shown alongside ml everywhere: par card totals, breakdown subtotals, waste log entries, waste suggestions, print sheet
+- Helper functions: `mlToOz()`, `mlOzDisp()`, `btlOzLabel()` for consistent dual-unit display
+- Bottle size reference label in waste log form updates dynamically when item is selected (e.g. "Bottles (473ml)")
+- Waste log now accepts three input methods: bottles (correct size per item), oz, or ml — any combination summed
+
+### Fixed
+- Waste log was hardcoding 750ml for all items regardless of actual bottle size
+- Waste log bottle inputs now use each item's correct bottle size
+
+### Removed
+- Golden Syrup removed from prep items (no longer used per bar manager)
+
+### Bottle oz reference (confirmed)
+| Bottle Size | oz Equivalent |
+|-------------|---------------|
+| 750ml | 25.36 oz |
+| 518ml | 17.52 oz |
+| 473ml (16oz) | 16.00 oz |
+| 500ml | 16.91 oz |
+
+---
+
 ## [2026-06-10] — Bottle Size Accuracy + Recipe Display
 
 ### Added
@@ -22,8 +47,8 @@ Format: newest entries at the top.
 |------|-------|
 | 750ml | Lemon, Lime, Grilled Lemon, Yuzu |
 | 500ml | Grapefruit, OJ, Pineapple, Cucumber Water, Ginga, Lemongrass |
-| 518ml | Simple, Demerara, Maple, Runny Hunny, Vanilla, Golden |
-| 473ml (16oz) | All purées, house specialty syrups, Orgeat (working bottle) |
+| 518ml | Simple, Demerara, Maple, Runny Hunny, Vanilla, Agave, Bombgave |
+| 473ml (16oz) | All purées, house specialty syrups, Orgeat (working bottle), Ginger Honey, Tigers Blood, Shiso Miso Hunny |
 | 1000ml | Orgeat (purchase bottle) |
 
 ---
