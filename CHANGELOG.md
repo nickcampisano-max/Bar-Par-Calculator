@@ -5,6 +5,14 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-06-18b] — Bottles Used Added to Par Card
+
+### Changed
+- "Used This Week" section now shows ml, oz, and btl used (fractional, e.g. 3.3 btl)
+- Bottom reference line renamed from "btl needed" to "btl to prep" for clarity
+
+---
+
 ## [2026-06-18] — Par Card Cleanup + Clear On Hand + Print Fixes
 
 ### Added
