@@ -5,6 +5,22 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-06-18] — Par Card Cleanup + Clear On Hand + Print Fixes
+
+### Added
+- "Clear On Hand" button in header — clears all bottle entries without affecting sales data
+- `clearOnHand()` function with confirmation prompt
+
+### Changed
+- Par card "Total Needed" renamed to "Used This Week" — cleaner label reflecting actual meaning
+- Par card layout simplified: ml (large) + oz (small) + `X btl needed (Xml)` as compact reference below divider
+- On hand hint simplified to `Xml per btl` — removed oz from that label to reduce noise
+
+### Fixed
+- Print sheet bottle counts were showing 10+ decimal places — now rounded to 2 decimal places max (e.g. `1.25` not `1.2500000001`)
+
+---
+
 ## [2026-06-15] — Dual oz/ml Display + Waste Log Improvements
 
 ### Added
