@@ -246,6 +246,7 @@ header {
   </div>
   <div class="header-controls">
 <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
+    <button class="btn btn-ghost" onclick="clearOnHand()">Clear On Hand</button>
     <button class="btn" onclick="printPrepSheet()">🖨 Print Prep Sheet</button>
     <button class="btn btn-primary" onclick="showTab('pars')">View Pars →</button>
   </div>
@@ -750,10 +751,10 @@ function renderPars() {
             <div class="par-card-breakdown">${breakdownLines || '<em style="opacity:.4">no sales</em>'}</div>
           </div>
           <div class="par-card-total">
-            <div class="par-card-total-label">Total Needed</div>
+            <div class="par-card-total-label">Used This Week</div>
             <div class="oz-needed">${needMl}<span class="oz-unit"> ml</span></div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${mlToOz(needMl)} oz</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px;">${needBtl} × ${btlOzLabel(bMl)} btl</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:3px;">${mlToOz(needMl)} oz</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px;border-top:1px solid var(--border);padding-top:4px;">${needBtl} btl needed <span style="opacity:.5">(${bMl}ml)</span></div>
           </div>
           <div class="par-card-onhand">
             <div class="par-card-total-label">On Hand (btl)</div>
@@ -763,7 +764,7 @@ function renderPars() {
                 oninput="setOnHand('${p.id}', this.value)">
               <span class="oz-unit">btl</span>
             </div>
-            <div style="font-size:10px;color:var(--muted);margin-top:3px;">${btlOzLabel(bMl)} / btl</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:3px;">${bMl}ml per btl</div>
           </div>
           <div class="par-card-net" style="min-width:200px;">
             <div class="par-card-total-label">Bottles to Prep</div>
@@ -829,7 +830,7 @@ function printPrepSheet() {
       const needMl  = mlVal(need);
       const bMl        = p.btl || 750;
       const handMl     = onHand[p.id] || 0;
-      const handBtl    = handMl / bMl;
+      const handBtl    = parseFloat((handMl / bMl).toFixed(2));
       const netMl      = Math.max(0, needMl - handMl);
       const netBtl     = Math.ceil(netMl / bMl);
       const surplusMl  = Math.max(0, handMl - needMl);
@@ -1375,6 +1376,13 @@ function clearSales() {
   saveState();
   renderSales();
   updateSummary();
+  if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
+}
+
+function clearOnHand() {
+  if (!confirm('Clear all on hand bottle quantities?')) return;
+  onHand = {};
+  saveState();
   if (document.getElementById('tab-pars').classList.contains('active')) renderPars();
 }
 
