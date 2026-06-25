@@ -5,6 +5,33 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-06-25] — Batch Cocktail Tracking
+
+### Added
+- 13 new batch PREP_ITEMS (all `cat:'Batch / Cordial'`, `btl:750`):
+  Aviation Batch, Golden Elixir Batch, Mr. Paradise Batch, Ba-New-New Batch,
+  Berry Beri Batch, Say Less Batch, Patent Pending Batch, Shifting Sands Batch,
+  Uncle Adzuki Batch, Koi-Chelada Batch, Thai'd Up Batch,
+  Watch Your Head Skipper Batch, Pimm's Cup Batch
+- Each batch now appears on Prep Pars, tracks usage from sales data, and shows bottles to prep
+
+### Changed
+- DRINKS updated for all 13 batch cocktails — batch ID added with correct per-serve oz:
+  Aviation (2.5oz), Golden Elixir (2oz), Mr. Paradise (4oz), Ba New New (2oz),
+  Berry Beri (2.5oz), Say Less (2.5oz), Patent Pending (2.5oz), Shifting Sands (2oz),
+  Uncle Adzuki (2.5oz), Koi-Chelada (2oz), Thai'd Up (2.75oz),
+  Watch Your Head, Skipper (2.5oz), Pimm's Cup (2oz)
+
+### Fixed / Removed (wrong prep item mappings)
+- Ba New New: removed `vanilla_s` (not a fresh addition — was incorrect)
+- Berry Beri: removed `lemongrass_s` (not a fresh addition — was incorrect)
+- Mr. Paradise: removed `lemon` + `pb_choc_s` (both are IN the batch)
+- Patent Pending: removed `peppercorn_s` (not a fresh addition — was incorrect)
+- Say Less: removed `lemongrass_s` (not a fresh addition — was incorrect)
+- Thai'd Up: removed `pandan_gum_c` (Pandan Gum Cordial is IN the batch)
+
+---
+
 ## [2026-06-18b] — Bottles Used Added to Par Card
 
 ### Changed
