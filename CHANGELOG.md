@@ -5,6 +5,25 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-06-30] — Spirits & Ordering Tab
+
+### Added
+- **Tab 5 · Spirits & Ordering** — new tab showing theoretical spirit/liqueur usage based on sales data
+- 60+ new PREP_ITEMS across Spirit and Liqueur categories (all 750ml): Vodka, Gin/Shochu, Rum, Whiskey, Agave, Pisco/Cognac/Other, Liqueurs & Fortified
+- Every drink in DRINKS array now has raw spirit oz per serve alongside existing prep item mappings
+- Batched cocktails track BOTH the batch bottle pour AND the raw spirits that go into the batch — batch pour drives bartender prep pars; raw spirits drive ordering
+- Spirits tab shows: oz used, ml used, btl used (theoretical), on-hand input, bottles to order
+- On-hand entry in Spirits tab uses same `setOnHand()` logic as Prep Pars
+- "Print Order Sheet" button on Spirits tab
+- Empty-state message when no sales data loaded
+
+### Design
+- Spirit ordering separated from prep pars intentionally — prep pars = production sheet for prep team; spirits = purchasing sheet for manager
+- Infused/house spirits (Lemongrass Infused Gin, Pandan Infused Iichiko, etc.) mapped to their base spirit for ordering tracking
+- Phase 2 planned: add bottle cost per spirit → automatic pour cost % per drink and by category
+
+---
+
 ## [2026-06-25] — Batch Cocktail Tracking
 
 ### Added
