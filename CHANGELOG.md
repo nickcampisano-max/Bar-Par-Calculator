@@ -5,6 +5,18 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-02] — Spirits Tab Fix + Prep/Spirits Split
+
+### Fixed
+- **Spirits tab blank when sales loaded** — removed `|| true` from the spirit-item filter so only spirits with actual usage appear (previously all 60+ items rendered as "—" rows, looking blank). If sales are loaded but no spirit usage is calculated (e.g. sales saved before spirits were added to recipes), a clear hint message now explains why and suggests re-uploading the CSV.
+- **Spirits appearing on Prep Pars tab** — added `Spirit` and `Liqueur` category filter to `renderPars()` so juices/syrups/batches and spirits are now fully separated across tabs.
+
+### Changed
+- Tab 2 · Prep Pars now shows only: Fresh Juice, Syrup, Purée, Batch / Cordial, Other Prep
+- Tab 3 · Spirits & Ordering shows only: Spirit, Liqueur — and only rows with usage (hides zero-use items)
+
+---
+
 ## [2026-06-30] — Spirits & Ordering Tab
 
 ### Added

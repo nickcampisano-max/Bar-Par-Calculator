@@ -794,10 +794,12 @@ function renderPars() {
     return;
   }
 
+  const SPIRIT_CATS = ['Spirit', 'Liqueur'];
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
   let html = '';
 
   categories.forEach(cat => {
+    if (SPIRIT_CATS.includes(cat)) return;   // spirits live on the Spirits & Ordering tab
     const items = PREP_ITEMS.filter(p => activeIds.has(p.id) && p.cat === cat);
     if (!items.length) return;
 
@@ -1773,9 +1775,11 @@ function renderSpirits() {
     <button class="btn btn-primary" onclick="window.print()">Print Order Sheet</button>
   </div>`;
 
+  let anyUsage = false;
   for (const [groupName, ids] of subOrder) {
-    const items = ids.map(id => PREP_MAP[id]).filter(Boolean).filter(p => (needed[p.id] || 0) > 0 || true);
+    const items = ids.map(id => PREP_MAP[id]).filter(Boolean).filter(p => (needed[p.id] || 0) > 0);
     if (!items.length) continue;
+    anyUsage = true;
 
     html += `<div class="section-header"><span class="section-title">${groupName}</span></div>`;
     html += `<table style="width:100%;border-collapse:collapse;margin-bottom:8px;">
@@ -1824,6 +1828,12 @@ function renderSpirits() {
       <div style="font-size:32px;margin-bottom:12px;">📊</div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;">No Sales Data</div>
       <div>Upload a CSV or enter sales on the Sales tab first.</div>
+    </div>`;
+  } else if (!anyUsage) {
+    html += `<div style="text-align:center;padding:40px 20px;color:var(--muted);border:1px dashed var(--border);border-radius:8px;margin-top:12px;">
+      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;">Sales loaded but no spirit usage calculated</div>
+      <div style="font-size:12px;line-height:1.6;">This can happen if your sales were saved before spirits were added to the recipes.<br>
+      Try clearing sales on the Sales tab and re-uploading your CSV.</div>
     </div>`;
   }
 
