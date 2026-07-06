@@ -1897,11 +1897,12 @@ function renderMovement() {
     });
   });
 
-  // Find prep items used in only one cocktail with low total usage
+  // Find prep items used in only one cocktail with low total usage — sorted by cocktails sold asc
   const singleCocktailItems = Object.entries(prepUsage)
     .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz < 8)
     .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0] }))
-    .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat));
+    .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
+    .sort((a, b) => a.use.qty - b.use.qty);
 
   // ── Header ──────────────────────────────────────────────────────────────────
   let html = `
