@@ -303,6 +303,9 @@ header {
     5 · Waste Log
     <span class="badge" id="wasteBadge" style="display:none"></span>
   </button>
+  <button class="tab-btn" id="tabBtnMovement" onclick="showTab('movement')">
+    6 · Cocktail Movement
+  </button>
 </div>
 
 <!-- ════════════════════════════════ SALES TAB ═══════════════════════════════ -->
@@ -347,6 +350,11 @@ header {
 <!-- ══════════════════════════════ SPIRITS TAB ═══════════════════════════════ -->
 <div class="tab-content" id="tab-spirits">
   <div id="spiritsContent"></div>
+</div>
+
+<!-- ════════════════════════════ MOVEMENT TAB ════════════════════════════════ -->
+<div class="tab-content" id="tab-movement">
+  <div id="movementContent"></div>
 </div>
 
 <script>
@@ -913,8 +921,10 @@ function printPrepSheet() {
   const bufferNote = buffer !== 100 ? ` (${buffer}% buffer applied)` : '';
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
 
+  const SPIRIT_CATS_PRINT = ['Spirit', 'Liqueur'];
   let rows = '';
   categories.forEach(cat => {
+    if (SPIRIT_CATS_PRINT.includes(cat)) return;
     const items = PREP_ITEMS.filter(p => (needed[p.id] || 0) > 0 && p.cat === cat);
     if (!items.length) return;
 
@@ -1009,6 +1019,116 @@ function printPrepSheet() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  PRINT ORDER SHEET (Spirits & Liqueurs)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function printOrderSheet() {
+  const needed = calcNeeded(true);
+  const dateStr = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+
+  const subOrder = [
+    ['Vodka',              ['monopolowa_v','zubrowka_v','haku_v']],
+    ['Gin / Shochu',       ['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto']],
+    ['Rum',                ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri']],
+    ['Whiskey',            ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky']],
+    ['Agave',              ['el_dist_tequila','arette_repo','arette_blanco','rayu_mezcal','campo_repo']],
+    ['Other Spirits',      ['pisco_r','cognac_r','apple_jack']],
+    ['Liqueurs & Fortified',['genepy','lillet_rouge','lillet_blanc','banana_liq','velvet_fal','ancho_reyes',
+      'maraschino_l','limoncello_l','dolin_blanc','cardamaro_l','montenegro_l','berry_amaro','averna_l',
+      'choya_l','fig_liq','akashi_ume','nux_alpina','oloroso_s','amontillado_s','fino_sherry','pimms_spirit',
+      'kiku_spirit','pine_amaro','chareau_l','dry_curacao','peach_liq','giffard_pass','cometico_l',
+      'jelinek_fernet','tuve_fernet','chartreuse_g']],
+  ];
+
+  let rows = '';
+  for (const [groupName, ids] of subOrder) {
+    const items = ids.map(id => PREP_MAP[id]).filter(Boolean).filter(p => (needed[p.id] || 0) > 0);
+    if (!items.length) continue;
+
+    rows += `<tr class="cat-row"><td colspan="6">${groupName}</td></tr>`;
+    items.forEach(p => {
+      const need    = needed[p.id] || 0;
+      const needMl  = Math.round(need * OZ_TO_ML);
+      const needOz  = need.toFixed(1);
+      const bMl     = p.btl || 750;
+      const btlUsed = parseFloat((needMl / bMl).toFixed(2));
+      const handMl  = onHand[p.id] || 0;
+      const handBtl = parseFloat((handMl / bMl).toFixed(2));
+      const netMl   = Math.max(0, needMl - handMl);
+      const netBtl  = Math.ceil(netMl / bMl);
+      const orderCell = netBtl > 0
+        ? `<strong>${netBtl} btl</strong>`
+        : `<span style="color:#1a6e3e">✓ Covered</span>`;
+      rows += `
+        <tr>
+          <td class="item-name">${p.name}</td>
+          <td class="item-cell">${needOz} oz</td>
+          <td class="item-cell">${needMl} ml</td>
+          <td class="item-cell">${btlUsed} btl</td>
+          <td class="item-cell">${handBtl > 0 ? handBtl + ' btl' : '—'}</td>
+          <td class="item-order">${orderCell}</td>
+          <td class="item-check"><div class="check-box"></div></td>
+        </tr>`;
+    });
+  }
+
+  if (!rows) {
+    rows = '<tr><td colspan="7" style="padding:20px;text-align:center;color:#999">No spirit usage data — enter sales first.</td></tr>';
+  }
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>Order Sheet</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, Arial, sans-serif; font-size: 13px; color: #111; padding: 20px 28px; }
+  .sheet-header { border-bottom: 3px solid #111; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sheet-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .sheet-meta { font-size: 12px; color: #555; text-align: right; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; }
+  .cat-row td { background: #f4f4f4; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; padding: 8px 10px 4px; border-top: 1px solid #ddd; }
+  tr td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+  .item-name { font-weight: 600; font-size: 13px; width: 28%; }
+  .item-cell { color: #555; font-size: 12px; width: 12%; }
+  .item-order { font-weight: 700; font-size: 14px; color: #1a6e3e; width: 13%; }
+  .item-check { width: 6%; text-align: center; }
+  .check-box { width: 22px; height: 22px; border: 2px solid #aaa; border-radius: 4px; margin: 0 auto; }
+  .footer { margin-top: 20px; font-size: 11px; color: #aaa; text-align: center; }
+  @media print { body { padding: 12px; } .footer { position: fixed; bottom: 10px; width: 100%; } }
+</style>
+</head><body>
+  <div class="sheet-header">
+    <div>
+      <div class="sheet-title">Spirits Order Sheet</div>
+      <div style="font-size:13px;color:#444;margin-top:4px">Theoretical usage · Verify with physical count</div>
+    </div>
+    <div class="sheet-meta">
+      Printed: ${dateStr}<br>
+      <strong>Btl Used</strong> = theoretical &nbsp;·&nbsp; <strong>On Hand</strong> = physical count &nbsp;·&nbsp; <strong>To Order</strong> = net need
+    </div>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">SPIRIT / LIQUEUR</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">OZ USED</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">ML USED</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">BTL USED</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">ON HAND</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">TO ORDER</th>
+      <th style="text-align:center;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">✓</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">Bar Order Sheet · Generated by Bar Par Calculator</div>
+<script>window.onload = () => window.print();<\/script>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  EVENT HANDLERS
 // ══════════════════════════════════════════════════════════════════════════════
 
@@ -1054,14 +1174,15 @@ function setOnHand(id, val) {
 }
 
 function showTab(tab) {
-  ['sales','pars','yields','waste','spirits'].forEach(t => {
+  ['sales','pars','yields','waste','spirits','movement'].forEach(t => {
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
     document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
   });
-  if (tab === 'pars')   renderPars();
-  if (tab === 'yields') renderYields();
-  if (tab === 'waste')  renderWasteLog();
-  if (tab === 'spirits') renderSpirits();
+  if (tab === 'pars')     renderPars();
+  if (tab === 'yields')   renderYields();
+  if (tab === 'waste')    renderWasteLog();
+  if (tab === 'spirits')  renderSpirits();
+  if (tab === 'movement') renderMovement();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1745,6 +1866,135 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
+//  RENDER — COCKTAIL MOVEMENT
+// ══════════════════════════════════════════════════════════════════════════════
+
+function renderMovement() {
+  const soldDrinks = DRINKS.filter(d => (parseFloat(sales[d.name]) || 0) > 0);
+
+  if (!soldDrinks.length) {
+    document.getElementById('movementContent').innerHTML = `
+      <div class="empty-state">
+        <p>No sales entered yet.</p>
+        <button class="btn btn-primary" onclick="showTab('sales')">← Enter Sales</button>
+      </div>`;
+    return;
+  }
+
+  const totalSold = soldDrinks.reduce((s, d) => s + (parseFloat(sales[d.name]) || 0), 0);
+  const sorted    = [...soldDrinks].sort((a, b) => (parseFloat(sales[b.name]) || 0) - (parseFloat(sales[a.name]) || 0));
+
+  // Slow mover threshold: bottom 20% OR fewer than 5 sold
+  const SLOW_THRESHOLD = Math.max(5, totalSold * 0.03);
+
+  // Build prep item → cocktail usage map (for single-cocktail insight)
+  const prepUsage = {}; // prepId → [{ drinkName, qty, oz }]
+  DRINKS.forEach(d => {
+    const qty = parseFloat(sales[d.name]) || 0;
+    if (!qty) return;
+    Object.entries(d.ing).forEach(([id, oz]) => {
+      if (!prepUsage[id]) prepUsage[id] = [];
+      prepUsage[id].push({ name: d.name, qty, oz, totalOz: oz * qty });
+    });
+  });
+
+  // Find prep items used in only one cocktail with low total usage
+  const singleCocktailItems = Object.entries(prepUsage)
+    .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz < 8)
+    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0] }))
+    .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat));
+
+  // ── Velocity table ──────────────────────────────────────────────────────────
+  const menus = [...new Set(DRINKS.map(d => d.menu))];
+  let html = `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:18px;font-weight:700;color:var(--gold)">Cocktail Movement</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${soldDrinks.length} cocktails sold · ${totalSold} total drinks this period</div>
+      </div>
+    </div>`;
+
+  // Rank table
+  html += `
+    <div class="section-header" style="margin-bottom:8px;"><span class="section-title">Velocity Ranking</span></div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+      <thead><tr style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);">
+        <th style="text-align:left;padding:6px 8px;font-weight:600;">#</th>
+        <th style="text-align:left;padding:6px 8px;font-weight:600;">Cocktail</th>
+        <th style="text-align:left;padding:6px 8px;font-weight:600;">Menu</th>
+        <th style="text-align:right;padding:6px 8px;font-weight:600;">Sold</th>
+        <th style="text-align:right;padding:6px 8px;font-weight:600;">% of Sales</th>
+        <th style="text-align:left;padding:6px 8px;font-weight:600;">Signal</th>
+      </tr></thead><tbody>`;
+
+  sorted.forEach((d, i) => {
+    const qty  = parseFloat(sales[d.name]) || 0;
+    const pct  = ((qty / totalSold) * 100).toFixed(1);
+    const slow = qty <= SLOW_THRESHOLD;
+    const rank = i + 1;
+    const rankColor = rank <= 3 ? 'color:var(--gold);font-weight:700' : '';
+    const signal = slow
+      ? `<span style="background:#3a1a1a;color:#ff6b6b;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;">⚠ Slow Mover</span>`
+      : rank <= 3
+        ? `<span style="background:#1a3a2a;color:#4caf7d;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600;">🔥 Top Seller</span>`
+        : '';
+    html += `
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:8px 8px;${rankColor}">${rank}</td>
+        <td style="padding:8px 8px;font-weight:600;">${d.name}</td>
+        <td style="padding:8px 8px;font-size:11px;color:var(--muted);">${d.menu}</td>
+        <td style="text-align:right;padding:8px 8px;">${qty}</td>
+        <td style="text-align:right;padding:8px 8px;color:var(--muted);">${pct}%</td>
+        <td style="padding:8px 8px;">${signal}</td>
+      </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  // ── Slow movers callout ──────────────────────────────────────────────────────
+  const slowMovers = sorted.filter(d => (parseFloat(sales[d.name]) || 0) <= SLOW_THRESHOLD);
+  if (slowMovers.length) {
+    html += `
+      <div class="section-header" style="margin-bottom:8px;"><span class="section-title">Slow Movers</span><span class="section-count">${slowMovers.length} cocktails below ${Math.round(SLOW_THRESHOLD)} sold</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;">`;
+    slowMovers.forEach(d => {
+      const qty = parseFloat(sales[d.name]) || 0;
+      html += `<div style="background:var(--surface2);border:1px solid #5a2020;border-radius:8px;padding:10px 14px;min-width:180px;">
+        <div style="font-weight:600;font-size:13px;">${d.name}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px;">${d.menu} · ${qty} sold</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // ── Single-cocktail low-use prep items ──────────────────────────────────────
+  if (singleCocktailItems.length) {
+    html += `
+      <div class="section-header" style="margin-bottom:8px;"><span class="section-title">Low-Use Prep Items</span><span class="section-count">only in one cocktail · under 8 oz used</span></div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead><tr style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Prep Item</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Only Used In</th>
+          <th style="text-align:right;padding:6px 8px;font-weight:600;">Cocktails Sold</th>
+          <th style="text-align:right;padding:6px 8px;font-weight:600;">Total oz Used</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Note</th>
+        </tr></thead><tbody>`;
+    singleCocktailItems.forEach(({ item, use }) => {
+      html += `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 8px;font-weight:600;">${item.name}</td>
+          <td style="padding:8px 8px;">${use.name}</td>
+          <td style="text-align:right;padding:8px 8px;">${use.qty}</td>
+          <td style="text-align:right;padding:8px 8px;">${use.totalOz.toFixed(1)} oz</td>
+          <td style="padding:8px 8px;font-size:11px;color:#ff9966;">Consider retiring if trend continues</td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  document.getElementById('movementContent').innerHTML = html;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 //  RENDER — SPIRITS & ORDERING
 // ══════════════════════════════════════════════════════════════════════════════
 function renderSpirits() {
@@ -1773,7 +2023,7 @@ function renderSpirits() {
       <div style="font-size:18px;font-weight:700;color:var(--gold)">Spirits & Ordering</div>
       <div style="font-size:12px;color:var(--muted);margin-top:2px;">Theoretical usage based on sales · Compare to physical count for variance</div>
     </div>
-    <button class="btn btn-primary" onclick="window.print()">Print Order Sheet</button>
+    <button class="btn btn-primary" onclick="printOrderSheet()">Print Order Sheet</button>
   </div>`;
 
   let anyUsage = false;
