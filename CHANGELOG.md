@@ -13,6 +13,9 @@ Format: newest entries at the top.
 
 ### Changed
 - Tab order updated: 1 · Sales Input, 2 · Prep Pars, 3 · Spirits & Ordering, 4 · Cocktail Movement, 5 · Waste Log, 6 · Yields Guide
+- Cocktail Movement tab now broken out by menu section (Classic Cocktails, CKC Manga Cocktails, ATP Cocktails) — each section ranked independently with its own Top Seller / Slow Mover badges
+- Slow Movers callout merged into velocity ranking — badges appear inline, duplicate section removed
+- Each cocktail row now shows % of menu sales and % of all sales
 
 ### Fixed
 - Print Prep Sheet no longer includes Spirit/Liqueur categories (they were bleeding into the prep print output)
