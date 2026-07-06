@@ -11,6 +11,9 @@ Format: newest entries at the top.
 - **Tab 6 · Cocktail Movement** — velocity ranking of all sold cocktails (qty, % of total sales), top seller / slow mover badges, and a "Low-Use Prep Items" table flagging prep items used in only one cocktail with under 8 oz consumed
 - **printOrderSheet()** — clean white print window for Spirits & Ordering (same format as Prep Sheet): grouped by spirit category, columns for oz used, ml, btl used, on hand, to order, and a checkbox
 
+### Changed
+- Tab order updated: 1 · Sales Input, 2 · Prep Pars, 3 · Spirits & Ordering, 4 · Cocktail Movement, 5 · Waste Log, 6 · Yields Guide
+
 ### Fixed
 - Print Prep Sheet no longer includes Spirit/Liqueur categories (they were bleeding into the prep print output)
 - Spirits & Ordering "Print Order Sheet" button now opens a proper print window instead of printing the dark-themed screen
