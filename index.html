@@ -1904,12 +1904,13 @@ function renderMovement() {
     .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
     .sort((a, b) => a.use.qty - b.use.qty);
 
-  // Single-dependency: only in 1 cocktail BUT >= 8 oz — selling fine but vulnerable if cocktail is cut
+  // Single-dependency: only in 1 cocktail, >= 8 oz, BUT only flag if that cocktail is also a slow mover
+  // High-selling cocktails with exclusive prep items aren't a real risk — no need to surface them
   const singleDepItems = Object.entries(prepUsage)
-    .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz >= 8)
+    .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz >= 8 && uses[0].qty <= SLOW_THRESHOLD)
     .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: DRINKS.find(d => d.name === uses[0].name) }))
     .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
-    .sort((a, b) => b.use.totalOz - a.use.totalOz);
+    .sort((a, b) => a.use.qty - b.use.qty);
 
   // ── Header ──────────────────────────────────────────────────────────────────
   let html = `
