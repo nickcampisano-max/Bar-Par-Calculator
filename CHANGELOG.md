@@ -12,6 +12,7 @@ Format: newest entries at the top.
 - Removed "Slow Mover", "Top Seller", and "Consider Retiring" text badges — slow movers now shown as dimmed rows, data speaks for itself
 - Low-Use Prep Items sorted highest to lowest (cocktails sold), matching other sections
 - Single-Use Prep Items only surfaces when the parent cocktail is itself below the slow mover threshold
+- Low-Use Prep Items now shows oz per serve next to cocktail name (e.g. "Honne (0.25 oz/serve)") — makes it immediately clear whether low usage is due to low sales or a micro-pour
 
 ---
 
