@@ -1993,7 +1993,7 @@ function renderMovement() {
       html += `
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 8px;font-weight:600;">${item.name}</td>
-          <td style="padding:8px 8px;">${use.name}</td>
+          <td style="padding:8px 8px;">${use.name} <span style="font-size:11px;color:var(--muted);">(${use.oz} oz/serve)</span></td>
           <td style="padding:8px 8px;font-size:11px;color:var(--muted);">${menuLabel}</td>
           <td style="text-align:right;padding:8px 8px;">${use.qty}</td>
           <td style="text-align:right;padding:8px 8px;">${use.totalOz.toFixed(1)} oz</td>
