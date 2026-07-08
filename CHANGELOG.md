@@ -16,6 +16,8 @@ Format: newest entries at the top.
 - Cocktail Movement tab now broken out by menu section (Classic Cocktails, CKC Manga Cocktails, ATP Cocktails) — each section ranked independently with its own Top Seller / Slow Mover badges
 - Slow Movers callout merged into velocity ranking — badges appear inline, duplicate section removed
 - Each cocktail row now shows % of menu sales and % of all sales
+- Low-Use Prep Items now shows cocktail name and program (Classics / CKC Manga / ATP), sorted by fewest cocktails sold first
+- Low-Use Prep Items split into two distinct sections: **Low-Use** (1 cocktail, under 8 oz — retirement candidates) and **Single-Use** (1 cocktail, 8+ oz — selling well but fully dependent on one cocktail, at risk if cut)
 
 ### Fixed
 - Print Prep Sheet no longer includes Spirit/Liqueur categories (they were bleeding into the prep print output)

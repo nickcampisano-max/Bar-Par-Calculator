@@ -1897,12 +1897,19 @@ function renderMovement() {
     });
   });
 
-  // Find prep items used in only one cocktail with low total usage — sorted by cocktails sold asc
-  const singleCocktailItems = Object.entries(prepUsage)
+  // Low-use: only in 1 cocktail AND < 8 oz total — retirement candidates
+  const lowUseItems = Object.entries(prepUsage)
     .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz < 8)
-    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0] }))
+    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: DRINKS.find(d => d.name === uses[0].name) }))
     .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
     .sort((a, b) => a.use.qty - b.use.qty);
+
+  // Single-dependency: only in 1 cocktail BUT >= 8 oz — selling fine but vulnerable if cocktail is cut
+  const singleDepItems = Object.entries(prepUsage)
+    .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz >= 8)
+    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: DRINKS.find(d => d.name === uses[0].name) }))
+    .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
+    .sort((a, b) => b.use.totalOz - a.use.totalOz);
 
   // ── Header ──────────────────────────────────────────────────────────────────
   let html = `
@@ -1970,26 +1977,63 @@ function renderMovement() {
     html += `</tbody></table>`;
   });
 
-  // ── Single-cocktail low-use prep items ──────────────────────────────────────
-  if (singleCocktailItems.length) {
+  // ── Low-use prep items (retirement candidates) ───────────────────────────────
+  if (lowUseItems.length) {
     html += `
-      <div class="section-header" style="margin-bottom:8px;"><span class="section-title">Low-Use Prep Items</span><span class="section-count">only in one cocktail · under 8 oz used</span></div>
+      <div class="section-header" style="margin-bottom:8px;">
+        <span class="section-title">Low-Use Prep Items</span>
+        <span class="section-count">1 cocktail only · under 8 oz used · retirement candidates</span>
+      </div>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
         <thead><tr style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);">
           <th style="text-align:left;padding:6px 8px;font-weight:600;">Prep Item</th>
           <th style="text-align:left;padding:6px 8px;font-weight:600;">Only Used In</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Program</th>
           <th style="text-align:right;padding:6px 8px;font-weight:600;">Cocktails Sold</th>
           <th style="text-align:right;padding:6px 8px;font-weight:600;">Total oz Used</th>
-          <th style="text-align:left;padding:6px 8px;font-weight:600;">Note</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Signal</th>
         </tr></thead><tbody>`;
-    singleCocktailItems.forEach(({ item, use }) => {
+    lowUseItems.forEach(({ item, use, drink }) => {
+      const menuLabel = drink ? (drink.menu === 'CKC Manga' ? 'CKC Manga' : drink.menu === 'ATP' ? 'ATP' : 'Classics') : '—';
       html += `
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:8px 8px;font-weight:600;">${item.name}</td>
           <td style="padding:8px 8px;">${use.name}</td>
+          <td style="padding:8px 8px;font-size:11px;color:var(--muted);">${menuLabel}</td>
           <td style="text-align:right;padding:8px 8px;">${use.qty}</td>
           <td style="text-align:right;padding:8px 8px;">${use.totalOz.toFixed(1)} oz</td>
-          <td style="padding:8px 8px;font-size:11px;color:#ff9966;">Consider retiring if trend continues</td>
+          <td style="padding:8px 8px;font-size:11px;color:#ff9966;">⚠ Consider retiring</td>
+        </tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+
+  // ── Single-dependency prep items (menu risk) ─────────────────────────────────
+  if (singleDepItems.length) {
+    html += `
+      <div class="section-header" style="margin-bottom:8px;">
+        <span class="section-title">Single-Use Prep Items</span>
+        <span class="section-count">1 cocktail only · selling well · at risk if cocktail is cut</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+        <thead><tr style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Prep Item</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Only Used In</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Program</th>
+          <th style="text-align:right;padding:6px 8px;font-weight:600;">Cocktails Sold</th>
+          <th style="text-align:right;padding:6px 8px;font-weight:600;">Total oz Used</th>
+          <th style="text-align:left;padding:6px 8px;font-weight:600;">Signal</th>
+        </tr></thead><tbody>`;
+    singleDepItems.forEach(({ item, use, drink }) => {
+      const menuLabel = drink ? (drink.menu === 'CKC Manga' ? 'CKC Manga' : drink.menu === 'ATP' ? 'ATP' : 'Classics') : '—';
+      html += `
+        <tr style="border-bottom:1px solid var(--border);">
+          <td style="padding:8px 8px;font-weight:600;">${item.name}</td>
+          <td style="padding:8px 8px;">${use.name}</td>
+          <td style="padding:8px 8px;font-size:11px;color:var(--muted);">${menuLabel}</td>
+          <td style="text-align:right;padding:8px 8px;">${use.qty}</td>
+          <td style="text-align:right;padding:8px 8px;">${use.totalOz.toFixed(1)} oz</td>
+          <td style="padding:8px 8px;font-size:11px;color:#6ab0ff;">Single dependency</td>
         </tr>`;
     });
     html += `</tbody></table>`;
