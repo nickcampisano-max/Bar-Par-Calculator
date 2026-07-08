@@ -5,6 +5,16 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-06b] — Cocktail Movement Refinements
+
+### Changed
+- Slow mover threshold switched from "3% of total sales" to "60% of weekly average per cocktail" — prevents strong sellers like The Enabler from surfacing as at-risk
+- Removed "Slow Mover", "Top Seller", and "Consider Retiring" text badges — slow movers now shown as dimmed rows, data speaks for itself
+- Low-Use Prep Items sorted highest to lowest (cocktails sold), matching other sections
+- Single-Use Prep Items only surfaces when the parent cocktail is itself below the slow mover threshold
+
+---
+
 ## [2026-07-06] — Print Order Sheet + Cocktail Movement Tab
 
 ### Added
