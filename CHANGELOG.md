@@ -5,6 +5,26 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-11] — Missing Recipe Fixes
+
+### Fixed
+- **The Face Planter Punch**: Wired full recipe — `goslings_r:4, cognac_r:1, hamilton_86:1, pineapple_j:4, lime:2, kiwi_p:2`. Note: recipe calls for "brandy" — mapped to `cognac_r` (Maison Rouge); confirm if a different bottle is used.
+- **Long Thailand Iced Tea**: Wired batch spirit breakdown. Batch = 250ml Bardstown + 250ml El Destilador + 250ml Denizen + 1L Jelenik Fernet (1750ml total). Per 1.75oz pour: `bardstown_bbn:0.25, el_dist_tequila:0.25, denizen_r:0.25, jelinek_fernet:1`.
+
+---
+
+## [2026-07-08] — Spirit Mapping Fixes
+
+### Fixed
+- **Whiskey Sour**: Added `dickel_rye: 2oz` — recipe specifies George Dickel 12 Sour Mash (same bottle as Old Fashioned). Was missing entirely, so Whiskey Sour sales weren't contributing to Dickel ordering.
+- **Sherry Cobbler**: Added `amontillado_s: 3oz` — confirmed via both Classics and ATP recipe PDFs. Was missing, so Sherry Cobbler sales weren't contributing to Amontillado ordering.
+
+### Notes / Pending
+- **Long Thailand Iced Tea**: Spirit tracking flows through the `long_thai_b` batch PREP_ITEM (correct). Individual spirits inside the Long Thai Batch are not mapped because the batch recipe isn't in the provided PDFs — add once batch recipe is available.
+- **The Face Planter Punch** and **Hey Bartender!**: No recipe found in any PDF — remain flagged with notes.
+
+---
+
 ## [2026-07-06b] — Cocktail Movement Refinements
 
 ### Changed

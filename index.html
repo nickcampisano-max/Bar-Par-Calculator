@@ -573,7 +573,7 @@ const DRINKS = [
   { name:'Hey Bartender!',           menu:'CKC Manga',  ing:{}, note:'Recipe not on file — add manually' },
   { name:'Koi-Chelada',              menu:'CKC Manga',  ing:{ koi_chelada_b:2, el_dist_tequila:1.5, ancho_reyes:0.5, kimchi_pico_p:1, lime:0.75 } },
   { name:'Lemongrass Swizzle',       menu:'CKC Manga',  ing:{ monopolowa_v:2, lemongrass_s:1, cucumber_w:0.75, lime:0.5, yuzu:0.25 } },
-  { name:'Long Thailand Iced Tea',   menu:'CKC Manga',  ing:{ long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5 } },
+  { name:'Long Thailand Iced Tea',   menu:'CKC Manga',  ing:{ long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5, bardstown_bbn:0.25, el_dist_tequila:0.25, denizen_r:0.25, jelinek_fernet:1 } },
   { name:'Mr. Paradise',             menu:'CKC Manga',  ing:{ mr_paradise_b:4, iichiko_s:0.75, hamilton_86:1, velvet_fal:0.5, banana_liq:0.5 } },
   { name:'Overnight',                menu:'CKC Manga',  ing:{ zubrowka_v:1.5, oat_geat:0.5, asian_pear:0.5, grapefruit:0.5, lemon:0.25 } },
   { name:'Patent Pending',           menu:'CKC Manga',  ing:{ patent_pending_b:2.5, dickel_rye:1, akashi_ume:0.5, nux_alpina:0.25, oloroso_s:0.25 } },
@@ -660,7 +660,7 @@ const DRINKS = [
   { name:'Penicillin',               menu:'Classics', ing:{ bankNote_scotch:2, honey_s:0.75, lemon:0.75, ginga_s:0.75 } },
   { name:'Scofflaw',                 menu:'Classics', ing:{ dickel_rye:1.5, lime:0.75, grenadine:0.75, vanilla_s:0.25 } },
   { name:'Statehood Cocktail',       menu:'Classics', ing:{ dickel_rye:1, lillet_rouge:0.5, ginga_s:0.5, lemon:0.5 } },
-  { name:'Whiskey Sour',             menu:'Classics', ing:{ lemon:0.75, gum_s:0.75, aquafaba:0.75 } },
+  { name:'Whiskey Sour',             menu:'Classics', ing:{ dickel_rye:2, lemon:0.75, gum_s:0.75, aquafaba:0.75 } },
   { name:'Gold Rush',                menu:'Classics', ing:{ dickel_bourbon:2, lemon:0.75, honey_s:0.75 } },
   // ── Classics (Agave) ──────────────────────────────────────────────────────
   { name:'El Diablo',                menu:'Classics', ing:{ arette_repo:1.5, lime:0.75, ginga_s:0.75, demerara:0.25 } },
@@ -679,11 +679,11 @@ const DRINKS = [
   { name:'Tuxedo No. 2',            menu:'Classics', ing:{ monopolowa_g:2 } },
   { name:'Rossini',                  menu:'Classics', ing:{ strawberry_p:0.5 } },
   { name:'Oaxacan Old Fashioned',    menu:'Classics', ing:{ campo_repo:1, rayu_mezcal:1.5, agave_s:0.25 } },
-  { name:'Sherry Cobbler',           menu:'Classics', ing:{ lemon:0.25, simple_s:0.5 } },
+  { name:'Sherry Cobbler',           menu:'Classics', ing:{ amontillado_s:3, lemon:0.25, simple_s:0.5 } },
   // ── Feature / Rotating Specials ──────────────────────────────────────────
   { name:'House Spritz',             menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
   { name:'Pretty In Pink',           menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
-  { name:'The Face Planter Punch',   menu:'CKC Manga',ing:{}, note:'Batch punch — add recipe' },
+  { name:'The Face Planter Punch',   menu:'CKC Manga',ing:{ goslings_r:4, cognac_r:1, hamilton_86:1, pineapple_j:4, lime:2, kiwi_p:2 } },
 ];
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1170,6 +1170,18 @@ function setOnHand(id, val) {
       statusHtml = `${netBtl} btl <span style="font-size:11px;font-weight:400;opacity:.6">(${netMl} ml)</span>`;
     }
     netEl.innerHTML = statusHtml;
+  }
+  // Also update Spirits & Ordering "To Order" cell in-place if visible
+  const spiritOrderEl = document.querySelector(`[data-spirit-orderid="${id}"]`);
+  if (spiritOrderEl) {
+    const needed2 = calcNeeded(true);
+    const need2   = needed2[id] || 0;
+    const needMl2 = Math.round(need2 * OZ_TO_ML);
+    const netMl2  = Math.max(0, needMl2 - (onHand[id] || 0));
+    const netBtl2 = Math.ceil(netMl2 / bMl);
+    spiritOrderEl.style.color    = netBtl2 > 0 ? 'var(--gold)' : 'var(--green)';
+    spiritOrderEl.style.fontWeight = netBtl2 > 0 ? '700' : '';
+    spiritOrderEl.textContent    = netBtl2 > 0 ? netBtl2 + ' btl' : need2 > 0 ? 'Covered ✓' : '—';
   }
 }
 
@@ -2108,7 +2120,7 @@ function renderSpirits() {
           >
           <span style="font-size:10px;color:var(--muted);margin-left:4px;">btl</span>
         </td>
-        <td style="text-align:right;padding:8px 8px;${orderColor}">${netBtl > 0 ? netBtl + ' btl' : need > 0 ? 'Covered ✓' : '—'}</td>
+        <td data-spirit-orderid="${p.id}" style="text-align:right;padding:8px 8px;${orderColor}">${netBtl > 0 ? netBtl + ' btl' : need > 0 ? 'Covered ✓' : '—'}</td>
       </tr>`;
     }
     html += `</tbody></table>`;
