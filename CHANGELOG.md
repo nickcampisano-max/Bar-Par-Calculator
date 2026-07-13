@@ -5,6 +5,14 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-11b] — Cocktail Movement Program Split
+
+### Changed
+- Low-Use Prep Items and Single-Use Prep Items sections now broken out by program (CKC Manga / ATP / Classics) instead of a single combined table
+- Removed "Program" column from both tables — now implicit from the section label
+
+---
+
 ## [2026-07-11] — Missing Recipe Fixes
 
 ### Fixed
