@@ -5,6 +5,27 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-15] — Locked Well Standard Spirit Updates
+
+### Changed
+Updated PREP_ITEMS to match B&R Hospitality Bar Well Guide (locked standard as of 7/1/2026):
+
+**Bottle replacements:**
+- Goslings Dark Rum → Plantation Original Dark Rum (750ml → 1L)
+- George Dickel Rye → Roulette Rye (750ml → 1L)
+- Maison Rouge Cognac → Lecarre VS French Brandy (750ml → 1L)
+- Payet Pisco → Vinas De Oro Pisco (750ml, no size change)
+- Arette Reposado → El Destilador Reposado (750ml → 1L)
+- El Distilador 100 → El Destilador Blanco (name corrected, 750ml → 1L)
+- Ryu Mezcal → Rayu Joven Mezcal (name corrected, 750ml → 1L)
+
+**Bottle size corrections (same bottle, now ordering 1L):**
+- Monopolowa Vodka: 750ml → 1L
+- Monopolowa Gin: 750ml → 1L
+- Bank Note Blended Scotch: 750ml → 1L
+
+---
+
 ## [2026-07-11b] — Cocktail Movement Program Split
 
 ### Changed
