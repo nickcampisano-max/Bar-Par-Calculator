@@ -596,6 +596,9 @@ const PREP_ITEMS = [
   { id:'yellow_chartreuse', name:'Yellow Chartreuse', cat:'Liqueur', btl:750 },
   { id:'zucca', name:'Zucca Amaro', cat:'Liqueur', btl:750 },
   { id:'zucca_porkbelly', name:'Pork Belly Washed Zucca Amaro', cat:'Liqueur', btl:750 },
+  { id:'midori_liq', name:'Midori Melon Liqueur', cat:'Liqueur', btl:750 },
+  { id:'citric_simple', name:'Citric Simple Syrup', cat:'Syrup', btl:750 },
+  { id:'berry_momokawa_sake', name:'Berry Momokawa Nigori Sake', cat:'Sake', btl:750 },
 ];
 
 const PREP_MAP = Object.fromEntries(PREP_ITEMS.map(p => [p.id, p]));
@@ -864,7 +867,7 @@ const DRINKS = [
   { name:'Sunburst', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.25, cappelletti_aperitivo:0.25, aa_pine:0.75, peach_p:0.5, honey_s:0.25 } },
   { name:'Yotei Six', menu:'CKG Manga', loc:'CKG', ing:{ pork_fat_vodka:1.0, ember_s:1.25, lime:0.5, clamato:1.5 } },
   { name:'Zenitsu Zour', menu:'CKG Manga', loc:'CKG', ing:{ suntory_toki:1.0, couvignac:1.0, aa_oj:1.0, coconut_c:1.0, yuzu:0.25, ginga_s:0.25, red_blend_wine:0.25 } },
-  { name:'Jade Mist Wander', menu:'CKG Manga', loc:'CKG', ing:{}, note:'Recipe not on file — add manually' },
+  { name:'Jade Mist Wander', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, chareau_l:0.25, midori_liq:0.25, vanilla_s:0.5, citric_simple:0.25, berry_momokawa_sake:0.5 } },
   // ── CKG Manga — Non-Alcoholic ────────────────────────────────────────────
   { name:'Lemongrass Swizzle NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lemongrass_s:2.0, lime:1.0, yuzu:0.5, cucumber_w:1.5 } },
   { name:'Riding The Pine NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lime:1.0, bombgave:1.0, passion_p:1.0 } },
@@ -1276,7 +1279,7 @@ function printOrderSheet() {
       'creme_cassis','creme_violette','cynar_ricetta','drambuie','eldee_ts','galliano','giffard_lychee',
       'house_dry_verm','house_sweet_verm','negroni16','newdeal_coffee','nonino_amaro','quina_quina',
       'salers_aperitif','solera_sherry','supercassis','suze','swedish_punsch','tuve_bitter_liq',
-      'yellow_chartreuse','zucca','zucca_porkbelly']],
+      'yellow_chartreuse','zucca','zucca_porkbelly','midori_liq']],
   ];
 
   let rows = '';
@@ -2335,7 +2338,7 @@ function renderSpirits() {
       'creme_cassis','creme_violette','cynar_ricetta','drambuie','eldee_ts','galliano','giffard_lychee',
       'house_dry_verm','house_sweet_verm','negroni16','newdeal_coffee','nonino_amaro','quina_quina',
       'salers_aperitif','solera_sherry','supercassis','suze','swedish_punsch','tuve_bitter_liq',
-      'yellow_chartreuse','zucca','zucca_porkbelly']],
+      'yellow_chartreuse','zucca','zucca_porkbelly','midori_liq']],
   ];
 
   let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">

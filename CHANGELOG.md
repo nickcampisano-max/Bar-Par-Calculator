@@ -5,6 +5,19 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-16b] — Jade Mist Wander Recipe Added
+
+### Added
+- **Jade Mist Wander** (CKG Manga) — last unbuilt CKG drink, now wired: `el_dist_tequila:1.5, chareau_l:0.25, midori_liq:0.25, vanilla_s:0.5, citric_simple:0.25, berry_momokawa_sake:0.5`
+- 3 new PREP_ITEMS: Midori Melon Liqueur (`midori_liq`), Citric Simple Syrup (`citric_simple`), Berry Momokawa Nigori Sake (`berry_momokawa_sake`, new `Sake` category)
+
+### Notes
+- "Chareu Aloe Liquor" mapped to existing `chareau_l` (Chareau) — same product, spec just misspells the brand name
+- "Midori" mapped to a **new** item (`midori_liq`), kept separate from the existing `mikeydori` ("House Midori") batch — spec says plain "Midori," not "house," so treating it as the real bottled brand rather than the housemade version. Flag if that's wrong.
+- CKG Stage 2 is now fully built — all Classics, all Manga, all NA. Only open item is confirming the CSV/Toast product mix once Nick pulls a month of CKG export data.
+
+---
+
 ## [2026-07-16] — CKG Classics + Manga Wired In (Stage 2)
 
 ### Added
