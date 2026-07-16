@@ -5,6 +5,35 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-16] — CKG Classics + Manga Wired In (Stage 2)
+
+### Added
+- **88 CKG Classics recipes** and **19 CKG Manga recipes + 3 NA** added to `DRINKS`, each tagged `loc:'CKG'`, `menu:'CKG Classics'` or `'CKG Manga'`
+- `Jade Mist Wander` added as a note-only stub (`ing:{}`, "Recipe not on file") — on the printed menu but no spec received yet
+- 47 new `PREP_ITEMS` for CKG-only ingredients (Blue Curacao, Bank Note Peated Scotch, Rhum JM 100 Proof, New Deal Coffee Liqueur, Eldee Triple Sec, House Dry/Sweet Vermouth, Tuve Bitter Liqueur, Suntory Toki Whisky, Couvignac, Cream Sherry, Ron Colón Red Banana Rum, Pork Fat Washed Vodka, and a long tail of one-off Manga modifiers) — full list in `ckg_stage2_ingredient_mapping` project notes
+- `loc` field on `DRINKS` entries + new `locDrinks()` helper — filters the drink list to the active location before any calculation
+- CKG-only spirit/liqueur ids added to the `Spirits & Ordering` and `Print Order Sheet` groupings; `CKG Classics` / `CKG Manga` added to Cocktail Movement's menu labels and low-use/single-use program breakdowns
+
+### Changed
+- `calcNeeded()`, `renderSales()`, `renderPars()`, `printPrepSheet()`, `renderMovement()` now filter through `locDrinks()` instead of the raw `DRINKS` array
+- `renderSpirits()` and `renderWasteLog()` no longer gate on `activeLocation === 'CKG'` — the "Coming Soon" placeholder only shows now if a location genuinely has zero drinks
+- **Well-swap applied across all CKG recipes**: Gruven Vodka → Monopolowa, Royal Standard Rum → Denizen, Mr Black Coffee Liqueur → New Deal Coffee Liqueur (per Nick's active well-guide transition, confirmed against the printed CKG menu and Manga spec sheet, not just the recipe spreadsheet)
+- Goslings / "Hart-Son" dark rum references kept mapped to the existing `goslings_r` item (display name left as "Plantation Original Dark Rum" — not renamed to "Planteray" — so CKC's prep sheets are unaffected)
+- Aperol replaced with Negroni Sixteen everywhere it appeared in CKG specs (Koi Kooler, Paper Plane, Age of The Aquarius), per locked well guide
+- **Zenitsu Zour**: built from Suntory Toki Whisky + Couvignac (menu wording) rather than the spec sheet's Tenjaku Whisky + Lecarre Cognac
+- **Liquid Escape**: "Vodka or Reposado Tequila" choice modeled as a 50/50 split (0.75oz Monopolowa Vodka + 0.75oz Campo Reposado) rather than defaulting fully to one spirit, since it's tracked as a single sales line
+
+### Fixed
+- **Critical, caught before release**: `calcNeeded()` originally summed the whole `DRINKS` array with no location filter. Once CKG drinks reused CKC drink names (Old Fashioned, Aviation, Daiquiri, Manhattan, Negroni, Mai Tai, and 67 others), CKC's prep math would have silently pulled in CKG's ingredients for any name collision. Fixed via `locDrinks()`; verified CKC and CKG "Old Fashioned" now resolve to their own distinct spirits with zero cross-contamination.
+- **Crystal Castle**: the "barspoon Genepy or Green Chartreuse" float was being silently dropped by the recipe parser (not defaulted — dropped entirely). Fixed to include Green Chartreuse, matching the printed menu.
+
+### Notes / Pending
+- **Jade Mist Wander** still needs a real spec from Nick — currently unbuilt
+- Confirmed as intentional/accurate, not sheet errors: Long Thailand Iced Tea (CKG) skips the `long_thai_b` pre-batch CKC uses; Riding The Pine NA (CKG) includes Bombgave that CKC's version doesn't; Ube'Be Colada NA (CKG) includes Kiwi that CKC's doesn't
+- CKC/ATP `DRINKS` and `PREP_ITEMS` entries themselves are untouched (only appended to) — the shared render/calc functions above were modified but verified to produce byte-identical CKC/ATP output (same per-menu drink counts, same ingredient totals) before and after
+
+---
+
 ## [2026-07-15b] — CKG Location Switcher (Stage 1)
 
 ### Added

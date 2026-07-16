@@ -546,6 +546,56 @@ const PREP_ITEMS = [
   { id:'jelinek_fernet',  name:'Jelinek Fernet',             cat:'Liqueur', btl:750 },
   { id:'tuve_fernet',     name:'Tuve Fernet',                cat:'Liqueur', btl:750 },
   { id:'chartreuse_g',    name:'Green Chartreuse',           cat:'Liqueur', btl:750 },
+  // ── CKG Classics + Manga additions ──────────────────────────────────────
+  { id:'absinthe', name:'Absinthe', cat:'Liqueur', btl:750 },
+  { id:'agricanto_cherry', name:'Agricanto Cherry Liqueur', cat:'Liqueur', btl:750 },
+  { id:'amaretto', name:'Lazzaroni Amaretto', cat:'Liqueur', btl:750 },
+  { id:'ancho_verde', name:'Ancho Verde', cat:'Liqueur', btl:750 },
+  { id:'bandoeng_pandan', name:'Bandoeng Pandan Liqueur', cat:'Liqueur', btl:750 },
+  { id:'bankNote_peated', name:'Bank Note Peated Scotch', cat:'Spirit', btl:1000 },
+  { id:'becherovka', name:'Becherovka', cat:'Liqueur', btl:750 },
+  { id:'benedictine', name:'Bénédictine', cat:'Liqueur', btl:750 },
+  { id:'blue_curacao', name:'Blue Curacao', cat:'Liqueur', btl:750 },
+  { id:'cappelletti_aperitivo', name:'Cappelletti Aperitivo', cat:'Liqueur', btl:750 },
+  { id:'cranberry_j', name:'Cranberry Juice', cat:'Other Prep', btl:1000 },
+  { id:'cream_sherry', name:'Cream Sherry', cat:'Liqueur', btl:750 },
+  { id:'creme_cassis', name:'Crème de Cassis', cat:'Liqueur', btl:750 },
+  { id:'creme_violette', name:'Crème de Violette', cat:'Liqueur', btl:700 },
+  { id:'cynar_ricetta', name:'Cynar Ricetta', cat:'Liqueur', btl:750 },
+  { id:'drambuie', name:'Drambuie', cat:'Liqueur', btl:750 },
+  { id:'eldee_ts', name:'Eldee Triple Sec Liqueur', cat:'Liqueur', btl:750 },
+  { id:'galliano', name:'Galliano', cat:'Liqueur', btl:750 },
+  { id:'giffard_lychee', name:'Giffard Lychee Liqueur', cat:'Liqueur', btl:750 },
+  { id:'hayman_old_tom', name:'Hayman\'s Old Tom Gin', cat:'Spirit', btl:750 },
+  { id:'heavy_cream', name:'Heavy Cream', cat:'Other Prep', btl:1000 },
+  { id:'house_dry_verm', name:'House Dry Vermouth (Lecarre)', cat:'Liqueur', btl:750 },
+  { id:'house_sweet_verm', name:'House Sweet Vermouth (Lecarre Red)', cat:'Liqueur', btl:750 },
+  { id:'jot_coffee', name:'Jot Coffee Concentrate', cat:'Other Prep', btl:750 },
+  { id:'negroni16', name:'Negroni Sixteen (Aperol Sub)', cat:'Liqueur', btl:750 },
+  { id:'newdeal_coffee', name:'New Deal Coffee Liqueur', cat:'Liqueur', btl:750 },
+  { id:'nonino_amaro', name:'Amaro Nonino', cat:'Liqueur', btl:750 },
+  { id:'olive_oil_prep', name:'Olive Oil (Bar Prep)', cat:'Other Prep', btl:750 },
+  { id:'pear_brandy', name:'Pear Brandy / Calvados', cat:'Spirit', btl:750 },
+  { id:'pork_fat_vodka', name:'Pork Fat Washed Vodka', cat:'Spirit', btl:750 },
+  { id:'prosecco_w', name:'Prosecco', cat:'Wine', btl:750 },
+  { id:'quina_quina', name:'Quina Quina', cat:'Liqueur', btl:750 },
+  { id:'raspberry_gum', name:'Raspberry Gum Syrup', cat:'Syrup', btl:750 },
+  { id:'red_blend_wine', name:'Red Blend Wine (Float)', cat:'Wine', btl:750 },
+  { id:'rhum_jm_100', name:'Rhum JM 100 Proof', cat:'Spirit', btl:750 },
+  { id:'roncolon_banana_rum', name:'Ron Colón Red Banana Rum', cat:'Spirit', btl:750 },
+  { id:'salers_aperitif', name:'Salers Aperitif', cat:'Liqueur', btl:750 },
+  { id:'sirop_de_canne', name:'Sirop de Canne', cat:'Syrup', btl:750 },
+  { id:'solera_sherry', name:'Solera Sherry', cat:'Liqueur', btl:750 },
+  { id:'supercassis', name:'Supercassis', cat:'Liqueur', btl:750 },
+  { id:'suze', name:'Suze', cat:'Liqueur', btl:750 },
+  { id:'swedish_punsch', name:'Swedish Punsch', cat:'Liqueur', btl:750 },
+  { id:'suntory_toki', name:'Suntory Toki Whisky', cat:'Spirit', btl:750 },
+  { id:'couvignac', name:'Couvignac', cat:'Spirit', btl:750 },
+  { id:'thai_syrup', name:'Thai Syrup', cat:'Syrup', btl:473 },
+  { id:'tuve_bitter_liq', name:'Tuve Bitter Liqueur', cat:'Liqueur', btl:750 },
+  { id:'yellow_chartreuse', name:'Yellow Chartreuse', cat:'Liqueur', btl:750 },
+  { id:'zucca', name:'Zucca Amaro', cat:'Liqueur', btl:750 },
+  { id:'zucca_porkbelly', name:'Pork Belly Washed Zucca Amaro', cat:'Liqueur', btl:750 },
 ];
 
 const PREP_MAP = Object.fromEntries(PREP_ITEMS.map(p => [p.id, p]));
@@ -705,6 +755,120 @@ const DRINKS = [
   { name:'House Spritz',             menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
   { name:'Pretty In Pink',           menu:'Feature',  ing:{}, note:'Feature item — confirm recipe each season' },
   { name:'The Face Planter Punch',   menu:'CKC Manga',ing:{ goslings_r:4, cognac_r:1, hamilton_86:1, pineapple_j:4, lime:2, kiwi_p:2 } },
+  // ── CKG Classics ─────────────────────────────────────────────────────────
+  { name:'Bay Breeze', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, pineapple_j:1.5, cranberry_j:1.5 } },
+  { name:'Caipiroska', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, simple_s:1.0, lime:0.5 } },
+  { name:'Collins (Vodka)', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, lemon:0.75, simple_s:0.75 } },
+  { name:'Koismo', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, eldee_ts:0.25, lime:0.75, simple_s:0.5 } },
+  { name:'Espresso Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, newdeal_coffee:0.75, averna_l:0.5, heavy_cream:0.5, vanilla_s:0.25 } },
+  { name:'Harvey Wallbanger', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, galliano:0.5, oj:4.0 } },
+  { name:'Lemon Drop', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, eldee_ts:0.25, lemon:0.75, simple_s:0.5 } },
+  { name:'Vodka Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.5, house_dry_verm:0.25 } },
+  { name:'Madras', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, oj:1.5, cranberry_j:1.5 } },
+  { name:'Moscow Mule', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, ginga_s:0.5, demerara:0.5, lemon:0.5, lime:0.5 } },
+  { name:'Salty Dog', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, grapefruit:3.0 } },
+  { name:'Sea Breeze', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, grapefruit:1.5, cranberry_j:1.5 } },
+  { name:'White Russian', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:1.0, newdeal_coffee:1.0, heavy_cream:1.0, vanilla_s:0.5 } },
+  { name:'The Wizard', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, house_dry_verm:1.0, yellow_chartreuse:0.5 } },
+  { name:'Vodka Tonic', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, lime:0.25, simple_s:0.25 } },
+  { name:'Pornstar Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:1.5, lemongrass_s:0.5, lemon:0.75, lime:0.25, passion_p:0.5, amaretto:0.75 } },
+  { name:'Sgroppino Al Limone', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:1.0, prosecco_w:1.5, citrus_oleo:0.75, simple_s:0.25 } },
+  { name:'Aviation', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, maraschino_l:0.5, creme_violette:0.062, lemon:0.75, simple_s:0.5 } },
+  { name:'Bees Knees', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lemon:0.75, honey_s:1.0 } },
+  { name:'Clover Club', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, house_dry_verm:0.5, aquafaba:0.75, lemon:0.75, raspberry_gum:0.5, grenadine:0.75 } },
+  { name:'Corpse Reviver #2', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:0.75, lillet_blanc:0.75, eldee_ts:0.75, lemon:0.75 } },
+  { name:'French 75', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lemon:0.75, simple_s:0.5 } },
+  { name:'Thai Gimlet', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.75, thai_syrup:0.75 } },
+  { name:'Gin and Tonic', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.25, simple_s:0.25 } },
+  { name:'Gin Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.75, house_dry_verm:0.75 } },
+  { name:'Martinez', menu:'CKG Classics', loc:'CKG', ing:{ hayman_old_tom:1.5, agricanto_cherry:0.75, house_sweet_verm:0.75 } },
+  { name:'Negroni', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, tuve_bitter_liq:0.75, house_sweet_verm:0.75 } },
+  { name:'Singapore Sling', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, agricanto_cherry:0.25, eldee_ts:0.25, benedictine:0.25, grenadine:0.5, lime:1.0, pineapple_j:0.75 } },
+  { name:'Southside', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.75, simple_s:0.75 } },
+  { name:'Tom Collins', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lemon:0.75, simple_s:0.75 } },
+  { name:'White Lady', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, eldee_ts:0.75, lemon:0.75 } },
+  { name:'Army Navy', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, orgeat:0.5, lemon:0.5 } },
+  { name:'Alaska', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, yellow_chartreuse:1.0 } },
+  { name:'Negroni Bianco (White Negroni)', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, suze:0.75, house_dry_verm:0.75 } },
+  { name:'Southside Fizz', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:1.0, simple_s:1.0 } },
+  { name:'Vesper', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, monopolowa_v:1.0, lillet_blanc:0.5 } },
+  { name:'12 Miles Out', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.0, swedish_punsch:1.0, pear_brandy:1.0 } },
+  { name:'Baby Darling', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:2.0, house_sweet_verm:0.75, zucca:0.25, quina_quina:0.25 } },
+  { name:'Daiquiri', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:2.0, lime:0.75, gum_s:0.5 } },
+  { name:'Dark and Stormy', menu:'CKG Classics', loc:'CKG', ing:{ goslings_r:2.0, ginga_s:0.5, lime:1.0, demerara:0.5 } },
+  { name:'Doctor Funk', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.5, absinthe:0.25, grenadine:0.75, lime:0.75, vanilla_s:0.25 } },
+  { name:'Hurricane', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.0, goslings_r:1.0, galliano:0.5, oj:2.0, pineapple_j:2.0, lime:0.75, passion_p:0.75 } },
+  { name:'Jungle Bird', menu:'CKG Classics', loc:'CKG', ing:{ goslings_r:1.5, tuve_bitter_liq:0.5, demerara:0.5, pineapple_j:0.75, lime:0.5 } },
+  { name:'El Presidente', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.5, house_dry_verm:0.75, dry_curacao:0.25, grenadine:0.062 } },
+  { name:'Mai Tai', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.0, goslings_r:1.0, eldee_ts:0.5, lime:0.75, orgeat:0.5 } },
+  { name:'Mojito', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:2.0, lime:0.75, simple_s:0.75 } },
+  { name:'Old Cuban', menu:'CKG Classics', loc:'CKG', ing:{ goslings_r:1.5, lime:0.5, demerara:0.5, lemon:0.25 } },
+  { name:'Pina Colada', menu:'CKG Classics', loc:'CKG', ing:{ denizen_r:1.0, kalani_r:1.0, coconut_c:1.5, pineapple_j:1.5, lime:0.25 } },
+  { name:'Ti Punch', menu:'CKG Classics', loc:'CKG', ing:{ rhum_jm_100:2.0, sirop_de_canne:0.5 } },
+  { name:'Avenue', menu:'CKG Classics', loc:'CKG', ing:{ house_dry_verm:1.0, dickel_rye:1.5, oj:1.0, passion_p:0.5, lemon:0.75 } },
+  { name:'Boulevardier', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:1.5, house_sweet_verm:0.75, tuve_bitter_liq:0.75 } },
+  { name:'French 95', menu:'CKG Classics', loc:'CKG', ing:{ bardstown_bbn:2.0, lemon:0.75, simple_s:0.5 } },
+  { name:'Manhattan', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:2.0, house_sweet_verm:1.0 } },
+  { name:'New York Sour', menu:'CKG Classics', loc:'CKG', ing:{ bardstown_bbn:2.0, lemon:1.0, gum_s:0.75, red_blend_wine:0.5 } },
+  { name:'Old Fashioned', menu:'CKG Classics', loc:'CKG', ing:{ bardstown_bbn:2.5, demerara:0.25 } },
+  { name:'Old Pal', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:1.5, house_dry_verm:0.75, tuve_bitter_liq:0.75 } },
+  { name:'Paper Plane', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:0.75, nonino_amaro:0.75, negroni16:0.75, lemon:0.75 } },
+  { name:'Penicillin', menu:'CKG Classics', loc:'CKG', ing:{ bankNote_scotch:2.0, lemon:0.75, ginga_s:0.5, honey_s:0.5 } },
+  { name:'Sazerac', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:2.0, gum_s:0.25 } },
+  { name:'Scofflaw', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:1.5, house_dry_verm:1.0, lime:0.75, grenadine:0.75, vanilla_s:0.25 } },
+  { name:'Statehood Cocktail', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:1.0, lillet_rouge:0.5, ginga_s:0.5, gum_s:0.25 } },
+  { name:'Rusty Nail', menu:'CKG Classics', loc:'CKG', ing:{ bankNote_peated:2.0, drambuie:1.0 } },
+  { name:'Vieux Carre', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:1.0, house_sweet_verm:1.0, cognac_r:1.0, benedictine:0.125 } },
+  { name:'Whiskey Sour', menu:'CKG Classics', loc:'CKG', ing:{ bardstown_bbn:2.0, lemon:0.75, simple_s:0.75 } },
+  { name:'Green Point', menu:'CKG Classics', loc:'CKG', ing:{ dickel_rye:2.0, yellow_chartreuse:0.5, house_sweet_verm:0.5 } },
+  { name:'Gold Rush', menu:'CKG Classics', loc:'CKG', ing:{ bardstown_bbn:2.0, lemon:0.75, honey_s:0.75 } },
+  { name:'Distrito Federal', menu:'CKG Classics', loc:'CKG', ing:{ arette_repo:1.5, house_sweet_verm:0.75 } },
+  { name:'El Diablo', menu:'CKG Classics', loc:'CKG', ing:{ arette_repo:1.5, creme_cassis:0.5, lime:0.75, ginga_s:0.75, demerara:0.25 } },
+  { name:'Oaxacan Old Fashioned', menu:'CKG Classics', loc:'CKG', ing:{ arette_repo:1.0, rayu_mezcal:1.5, bombgave:0.25 } },
+  { name:'Paloma', menu:'CKG Classics', loc:'CKG', ing:{ el_dist_tequila:2.0, grapefruit:1.5, lime:0.5, lemongrass_s:0.75 } },
+  { name:'Rosita', menu:'CKG Classics', loc:'CKG', ing:{ arette_repo:1.5, tuve_bitter_liq:0.75, house_sweet_verm:0.75 } },
+  { name:'Vicious Virgin', menu:'CKG Classics', loc:'CKG', ing:{ el_dist_tequila:1.5, blue_curacao:0.25, grapefruit:1.5, lime:0.5, orgeat:0.5 } },
+  { name:'Yellow Boxer', menu:'CKG Classics', loc:'CKG', ing:{ el_dist_tequila:1.5, galliano:0.5, lemon:0.5, lime:0.25, simple_s:0.75 } },
+  { name:'Tommy\'s Margarita', menu:'CKG Classics', loc:'CKG', ing:{ el_dist_tequila:2.0, lime:1.0, agave_s:0.75 } },
+  { name:'Age of The Aquarius', menu:'CKG Classics', loc:'CKG', ing:{ rayu_mezcal:1.5, lime:0.75, passion_p:0.5, honey_s:0.75, negroni16:0.5 } },
+  { name:'Adonis', menu:'CKG Classics', loc:'CKG', ing:{ cream_sherry:1.5, house_sweet_verm:1.5 } },
+  { name:'Caipirinha', menu:'CKG Classics', loc:'CKG', ing:{ cachaca_r:2.0, simple_s:0.5, lime:0.25 } },
+  { name:'Champagne Cocktail', menu:'CKG Classics', loc:'CKG', ing:{ eldee_ts:0.5 } },
+  { name:'Chartreuse Fizz', menu:'CKG Classics', loc:'CKG', ing:{ chartreuse_g:1.5, salers_aperitif:0.5, lemon:0.5, lime:0.25, gum_s:0.75 } },
+  { name:'Honeymoon', menu:'CKG Classics', loc:'CKG', ing:{ apple_jack:0.75, benedictine:0.75, eldee_ts:0.75, lemon:0.75 } },
+  { name:'Sherry Cobbler', menu:'CKG Classics', loc:'CKG', ing:{ amontillado_s:3.0, simple_s:0.5 } },
+  { name:'Sidecar', menu:'CKG Classics', loc:'CKG', ing:{ cognac_r:2.0, eldee_ts:0.25, lemon:0.75, simple_s:0.5 } },
+  { name:'Pimm\'s Cup', menu:'CKG Classics', loc:'CKG', ing:{ pimms_b:1.0, jelinek_fernet:0.25, tuve_fernet:0.25, cucumber_w:0.75, lemon:0.75, simple_s:0.5 } },
+  { name:'Pisco Sour', menu:'CKG Classics', loc:'CKG', ing:{ pisco_r:2.0, lemon:0.5, lime:0.25, gum_s:0.5 } },
+  { name:'Bamboo', menu:'CKG Classics', loc:'CKG', ing:{ house_dry_verm:1.5, fino_sherry:1.5, sakura_s:0.125 } },
+  { name:'Sbagliato', menu:'CKG Classics', loc:'CKG', ing:{ house_sweet_verm:1.5, tuve_bitter_liq:1.5 } },
+  { name:'Americano', menu:'CKG Classics', loc:'CKG', ing:{ house_sweet_verm:1.0, tuve_bitter_liq:1.0 } },
+  { name:'Rossini', menu:'CKG Classics', loc:'CKG', ing:{ strawberry_p:0.5 } },
+  // ── CKG Manga ────────────────────────────────────────────────────────────
+  { name:'Backyard Kid', menu:'CKG Manga', loc:'CKG', ing:{ campo_repo:1.5, ancho_reyes:0.5, giffard_pass:0.5, lemon:0.5, lime:0.5, ember_s:1.0 } },
+  { name:'Bad Man Lighter', menu:'CKG Manga', loc:'CKG', ing:{ roncolon_banana_rum:1.25, giffard_pass:0.5, bandoeng_pandan:0.25, grilled_lemon:0.5, pineapple_j:0.75, thai_tea:0.5 } },
+  { name:'Crystal Castle', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_g:2.0, crystal_c:1.5, chartreuse_g:0.125 } },
+  { name:'Dissonant Whispers', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.0, velvet_fal:0.5, supercassis:0.25, cardamaro_l:0.25 } },
+  { name:'Enabler', menu:'CKG Manga', loc:'CKG', ing:{ bardstown_bbn:2.5, grilled_lemon:0.75, maple_s:0.75 } },
+  { name:'Elisabetta\'s Slumber', menu:'CKG Manga', loc:'CKG', ing:{ nonino_amaro:1.5, zucca_porkbelly:0.5, ancho_verde:0.25, giffard_pass:0.25 } },
+  { name:'Koi Kooler', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, negroni16:0.5, giffard_lychee:0.5, lemon:0.75, lemongrass_s:0.5 } },
+  { name:'Lemongrass Swizzle', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:2.0, lemongrass_s:1.0, cucumber_w:0.75, lime:0.5, yuzu:0.25 } },
+  { name:'License To Drive', menu:'CKG Manga', loc:'CKG', ing:{ dickel_rye:1.5, cappelletti_aperitivo:0.75, solera_sherry:0.75 } },
+  { name:'Liquid Escape', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:0.75, campo_repo:0.75, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
+  { name:'Long Thailand Iced Tea', menu:'CKG Manga', loc:'CKG', ing:{ jelinek_fernet:1.0, denizen_r:0.25, bardstown_bbn:0.25, el_dist_tequila:0.25, thai_tea:1.75, coconut_c:1.5 } },
+  { name:'Lucid Fuji', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.0, monopolowa_g:1.0, lucid_c:1.5 } },
+  { name:'Midnight Oni Highball', menu:'CKG Manga', loc:'CKG', ing:{ akashi_ume:1.5, dickel_rye:0.5, oni_plum_c:1.0 } },
+  { name:'Pandan B-Bop', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.5, bandoeng_pandan:0.5, becherovka:0.5, pineapple_j:0.75, vanilla_org:0.25, passion_p:0.25, lemon:1.0 } },
+  { name:'Riding The Pine', menu:'CKG Manga', loc:'CKG', ing:{ lillet_rouge:1.5, navy_gin:1.0, lime:1.0, passion_p:0.75 } },
+  { name:'Scarlet Sora', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:1.5, lillet_blanc:1.0, lemon:0.5, lime:0.25, peach_p:0.5, bombgave:0.25, pine_gum:0.25 } },
+  { name:'Sunburst', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.25, cappelletti_aperitivo:0.25, aa_pine:0.75, peach_p:0.5, honey_s:0.25 } },
+  { name:'Yotei Six', menu:'CKG Manga', loc:'CKG', ing:{ pork_fat_vodka:1.0, ember_s:1.25, lime:0.5, clamato:1.5 } },
+  { name:'Zenitsu Zour', menu:'CKG Manga', loc:'CKG', ing:{ suntory_toki:1.0, couvignac:1.0, aa_oj:1.0, coconut_c:1.0, yuzu:0.25, ginga_s:0.25, red_blend_wine:0.25 } },
+  { name:'Jade Mist Wander', menu:'CKG Manga', loc:'CKG', ing:{}, note:'Recipe not on file — add manually' },
+  // ── CKG Manga — Non-Alcoholic ────────────────────────────────────────────
+  { name:'Lemongrass Swizzle NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lemongrass_s:2.0, lime:1.0, yuzu:0.5, cucumber_w:1.5 } },
+  { name:'Riding The Pine NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lime:1.0, bombgave:1.0, passion_p:1.0 } },
+  { name:'Ube\'Be Colada NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ pineapple_j:2.0, coconut_c:1.5, lime:0.75, kiwi_p:0.5 } },
 ];
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -781,10 +945,12 @@ function renderCKGPlaceholder(contentId) {
 //  CALCULATIONS
 // ══════════════════════════════════════════════════════════════════════════════
 
+function locDrinks() { return DRINKS.filter(d => (d.loc || 'CKC') === activeLocation); }
+
 function calcNeeded(applyBuffer = false) {
   const totals = {};
   const mult = applyBuffer ? (buffer / 100) : 1;
-  DRINKS.forEach(d => {
+  locDrinks().forEach(d => {
     const qty = parseFloat(sales[d.name]) || 0;
     if (!qty) return;
     Object.entries(d.ing).forEach(([id, oz]) => {
@@ -799,12 +965,13 @@ function calcNeeded(applyBuffer = false) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderSales() {
-  if (activeLocation === 'CKG') { renderCKGPlaceholder('salesContent'); return; }
-  const menus = [...new Set(DRINKS.map(d => d.menu))];
+  const scoped = locDrinks();
+  if (!scoped.length) { renderCKGPlaceholder('salesContent'); return; }
+  const menus = [...new Set(scoped.map(d => d.menu))];
   let html = '';
 
   menus.forEach(menu => {
-    const drinks = DRINKS.filter(d => d.menu === menu);
+    const drinks = scoped.filter(d => d.menu === menu);
     const menuTotal = drinks.reduce((s, d) => s + (parseFloat(sales[d.name]) || 0), 0);
     html += `
       <div class="section-header">
@@ -856,7 +1023,7 @@ function renderSales() {
 
 
 function renderPars() {
-  if (activeLocation === 'CKG') { renderCKGPlaceholder('parsContent'); return; }
+  if (!locDrinks().length) { renderCKGPlaceholder('parsContent'); return; }
   const needed = calcNeeded(true);
   const activeIds = new Set(Object.keys(needed).filter(id => needed[id] > 0));
   Object.keys(onHand).forEach(id => { if (onHand[id] > 0) activeIds.add(id); });
@@ -904,7 +1071,7 @@ function renderPars() {
       }
 
       // Build per-drink breakdown lines
-      const drivers = DRINKS.filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0);
+      const drivers = locDrinks().filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0);
       const breakdownLines = drivers.map(d => {
         const qty    = parseInt(sales[d.name]);
         const oz     = d.ing[p.id];
@@ -1005,7 +1172,7 @@ function printPrepSheet() {
       const netMl      = Math.max(0, needMl - handMl);
       const netBtl     = Math.ceil(netMl / bMl);
       const surplusMl  = Math.max(0, handMl - needMl);
-      const drivers = DRINKS
+      const drivers = locDrinks()
         .filter(d => d.ing[p.id] && (parseFloat(sales[d.name]) || 0) > 0)
         .map(d => `${d.name} ×${parseInt(sales[d.name])}`)
         .join(', ');
@@ -1094,17 +1261,22 @@ function printOrderSheet() {
   const dateStr = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
 
   const subOrder = [
-    ['Vodka',              ['monopolowa_v','zubrowka_v','haku_v']],
-    ['Gin / Shochu',       ['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto']],
-    ['Rum',                ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri']],
-    ['Whiskey',            ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky']],
+    ['Vodka',              ['monopolowa_v','zubrowka_v','haku_v','pork_fat_vodka']],
+    ['Gin / Shochu',       ['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto','hayman_old_tom']],
+    ['Rum',                ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri','rhum_jm_100','roncolon_banana_rum']],
+    ['Whiskey',            ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki']],
     ['Agave',              ['el_dist_tequila','arette_repo','arette_blanco','rayu_mezcal','campo_repo']],
-    ['Other Spirits',      ['pisco_r','cognac_r','apple_jack']],
+    ['Other Spirits',      ['pisco_r','cognac_r','apple_jack','pear_brandy','couvignac']],
     ['Liqueurs & Fortified',['genepy','lillet_rouge','lillet_blanc','banana_liq','velvet_fal','ancho_reyes',
       'maraschino_l','limoncello_l','dolin_blanc','cardamaro_l','montenegro_l','berry_amaro','averna_l',
       'choya_l','fig_liq','akashi_ume','nux_alpina','oloroso_s','amontillado_s','fino_sherry','pimms_spirit',
       'kiku_spirit','pine_amaro','chareau_l','dry_curacao','peach_liq','giffard_pass','cometico_l',
-      'jelinek_fernet','tuve_fernet','chartreuse_g']],
+      'jelinek_fernet','tuve_fernet','chartreuse_g','absinthe','agricanto_cherry','amaretto','ancho_verde',
+      'bandoeng_pandan','becherovka','benedictine','blue_curacao','cappelletti_aperitivo','cream_sherry',
+      'creme_cassis','creme_violette','cynar_ricetta','drambuie','eldee_ts','galliano','giffard_lychee',
+      'house_dry_verm','house_sweet_verm','negroni16','newdeal_coffee','nonino_amaro','quina_quina',
+      'salers_aperitif','solera_sherry','supercassis','suze','swedish_punsch','tuve_bitter_liq',
+      'yellow_chartreuse','zucca','zucca_porkbelly']],
   ];
 
   let rows = '';
@@ -1446,7 +1618,6 @@ function updateWasteBadge() {
 }
 
 function renderWasteLog() {
-  if (activeLocation === 'CKG') { renderCKGPlaceholder('wasteContent'); updateWasteBadge(); return; }
   updateWasteBadge();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -1959,8 +2130,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderMovement() {
-  if (activeLocation === 'CKG') { renderCKGPlaceholder('movementContent'); return; }
-  const soldDrinks = DRINKS.filter(d => (parseFloat(sales[d.name]) || 0) > 0);
+  const scopedDrinks = locDrinks();
+  if (!scopedDrinks.length) { renderCKGPlaceholder('movementContent'); return; }
+  const soldDrinks = scopedDrinks.filter(d => (parseFloat(sales[d.name]) || 0) > 0);
 
   if (!soldDrinks.length) {
     document.getElementById('movementContent').innerHTML = `
@@ -1979,7 +2151,7 @@ function renderMovement() {
 
   // Build prep item → cocktail usage map (for single-cocktail insight)
   const prepUsage = {};
-  DRINKS.forEach(d => {
+  scopedDrinks.forEach(d => {
     const qty = parseFloat(sales[d.name]) || 0;
     if (!qty) return;
     Object.entries(d.ing).forEach(([id, oz]) => {
@@ -1991,7 +2163,7 @@ function renderMovement() {
   // Low-use: only in 1 cocktail AND < 8 oz total — retirement candidates
   const lowUseItems = Object.entries(prepUsage)
     .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz < 8)
-    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: DRINKS.find(d => d.name === uses[0].name) }))
+    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: scopedDrinks.find(d => d.name === uses[0].name) }))
     .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
     .sort((a, b) => b.use.qty - a.use.qty);
 
@@ -1999,7 +2171,7 @@ function renderMovement() {
   // High-selling cocktails with exclusive prep items aren't a real risk — no need to surface them
   const singleDepItems = Object.entries(prepUsage)
     .filter(([id, uses]) => uses.length === 1 && uses[0].totalOz >= 8 && uses[0].qty <= SLOW_THRESHOLD)
-    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: DRINKS.find(d => d.name === uses[0].name) }))
+    .map(([id, uses]) => ({ item: PREP_MAP[id], use: uses[0], drink: scopedDrinks.find(d => d.name === uses[0].name) }))
     .filter(x => x.item && !['Spirit','Liqueur'].includes(x.item.cat))
     .sort((a, b) => a.use.qty - b.use.qty);
 
@@ -2014,11 +2186,13 @@ function renderMovement() {
 
   // ── Per-menu velocity tables ─────────────────────────────────────────────────
   const MENU_LABELS = {
-    'Classics':  'Classic Cocktails',
-    'CKC Manga': 'CKC Manga Cocktails',
-    'ATP':       'ATP Cocktails',
+    'Classics':     'Classic Cocktails',
+    'CKC Manga':    'CKC Manga Cocktails',
+    'ATP':          'ATP Cocktails',
+    'CKG Classics': 'CKG Classic Cocktails',
+    'CKG Manga':    'CKG Manga Cocktails',
   };
-  const menus = [...new Set(DRINKS.map(d => d.menu))];
+  const menus = [...new Set(scopedDrinks.map(d => d.menu))];
 
   menus.forEach(menu => {
     const menuDrinks = soldDrinks.filter(d => d.menu === menu)
@@ -2065,9 +2239,11 @@ function renderMovement() {
 
   // ── Low-use prep items (retirement candidates) ───────────────────────────────
   const LOW_USE_PROGRAMS = [
-    { key:'CKC Manga', label:'CKC Manga' },
-    { key:'ATP',       label:'ATP' },
-    { key:'Classics',  label:'Classics' },
+    { key:'CKC Manga',    label:'CKC Manga' },
+    { key:'ATP',          label:'ATP' },
+    { key:'Classics',     label:'Classics' },
+    { key:'CKG Manga',    label:'CKG Manga' },
+    { key:'CKG Classics', label:'CKG Classics' },
   ];
   const anyLowUse = LOW_USE_PROGRAMS.some(({ key }) => lowUseItems.some(x => x.drink && x.drink.menu === key));
   if (anyLowUse) {
@@ -2137,7 +2313,6 @@ function renderMovement() {
 //  RENDER — SPIRITS & ORDERING
 // ══════════════════════════════════════════════════════════════════════════════
 function renderSpirits() {
-  if (activeLocation === 'CKG') { renderCKGPlaceholder('spiritsContent'); return; }
   const spiritCats = ['Spirit', 'Liqueur'];
   const spiritItems = PREP_ITEMS.filter(p => spiritCats.includes(p.cat));
   const needed = calcNeeded(true);
@@ -2145,17 +2320,22 @@ function renderSpirits() {
   // Group by sub-category
   const groups = {};
   const subOrder = [
-    ['Vodka',       ['monopolowa_v','zubrowka_v','haku_v']],
-    ['Gin / Shochu',['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto']],
-    ['Rum',         ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri']],
-    ['Whiskey',     ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky']],
+    ['Vodka',       ['monopolowa_v','zubrowka_v','haku_v','pork_fat_vodka']],
+    ['Gin / Shochu',['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto','hayman_old_tom']],
+    ['Rum',         ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri','rhum_jm_100','roncolon_banana_rum']],
+    ['Whiskey',     ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki']],
     ['Agave',       ['el_dist_tequila','arette_repo','arette_blanco','rayu_mezcal','campo_repo']],
-    ['Other Spirits',['pisco_r','cognac_r','apple_jack']],
+    ['Other Spirits',['pisco_r','cognac_r','apple_jack','pear_brandy','couvignac']],
     ['Liqueurs & Fortified', ['genepy','lillet_rouge','lillet_blanc','banana_liq','velvet_fal','ancho_reyes',
       'maraschino_l','limoncello_l','dolin_blanc','cardamaro_l','montenegro_l','berry_amaro','averna_l',
       'choya_l','fig_liq','akashi_ume','nux_alpina','oloroso_s','amontillado_s','fino_sherry','pimms_spirit',
       'kiku_spirit','pine_amaro','chareau_l','dry_curacao','peach_liq','giffard_pass','cometico_l',
-      'jelinek_fernet','tuve_fernet','chartreuse_g']],
+      'jelinek_fernet','tuve_fernet','chartreuse_g','absinthe','agricanto_cherry','amaretto','ancho_verde',
+      'bandoeng_pandan','becherovka','benedictine','blue_curacao','cappelletti_aperitivo','cream_sherry',
+      'creme_cassis','creme_violette','cynar_ricetta','drambuie','eldee_ts','galliano','giffard_lychee',
+      'house_dry_verm','house_sweet_verm','negroni16','newdeal_coffee','nonino_amaro','quina_quina',
+      'salers_aperitif','solera_sherry','supercassis','suze','swedish_punsch','tuve_bitter_liq',
+      'yellow_chartreuse','zucca','zucca_porkbelly']],
   ];
 
   let html = `<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
