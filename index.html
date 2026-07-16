@@ -40,6 +40,23 @@ header {
 .btn-ghost { background: none; border-color: transparent; color: var(--muted); }
 .btn-ghost:hover { color: var(--red); border-color: var(--red); }
 
+/* ── Location Switcher ── */
+.loc-switcher {
+  display: flex; align-items: center; gap: 2px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px;
+}
+.loc-btn {
+  padding: 5px 18px; border-radius: 5px; border: none;
+  background: none; color: var(--muted);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s; letter-spacing: 0.6px; text-transform: uppercase;
+}
+.loc-btn.active { background: var(--gold); color: #000; }
+/* CKG blue theme */
+body.loc-ckg { --gold: #5a9ee0; --gold-dim: #3a7ec0; }
+body.loc-ckg .loc-btn.active { color: #fff; }
+
 /* ── Summary Bar ── */
 .summary-bar {
   background: var(--surface); border-bottom: 1px solid var(--border);
@@ -242,7 +259,11 @@ header {
 <header>
   <div class="brand">
     <h1>Bar Par Calculator</h1>
-    <span>Sales → Prep Needs · Both Locations</span>
+    <span id="locSubtitle">CKC Manga / ATP · Sales → Prep Needs</span>
+  </div>
+  <div class="loc-switcher">
+    <button class="loc-btn active" id="locBtnCKC" onclick="switchLocation('CKC')">CKC</button>
+    <button class="loc-btn" id="locBtnCKG" onclick="switchLocation('CKG')">CKG</button>
   </div>
   <div class="header-controls">
 <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
@@ -690,26 +711,70 @@ const DRINKS = [
 //  STATE  (in-memory; localStorage for persistence across reloads)
 // ══════════════════════════════════════════════════════════════════════════════
 
-let sales    = {};   // drinkName  → qty sold
-let onHand   = {};   // prepItemId → oz on hand
-let buffer   = 100;  // par buffer %
-let wasteLog = [];   // [ { id, date, qty, reason, notes } ]
+let sales         = {};    // drinkName  → qty sold
+let onHand        = {};    // prepItemId → oz on hand
+let buffer        = 100;   // par buffer %
+let wasteLog      = [];    // [ { id, date, qty, reason, notes } ]
+let activeLocation = 'CKC'; // 'CKC' or 'CKG'
+
+function locPrefix() { return activeLocation === 'CKG' ? 'ckg_pars_' : 'ck_pars_'; }
 
 function saveState() {
   try {
-    localStorage.setItem('ck_pars_sales',     JSON.stringify(sales));
-    localStorage.setItem('ck_pars_onhand',    JSON.stringify(onHand));
-    localStorage.setItem('ck_pars_buffer',    buffer);
-    localStorage.setItem('ck_pars_wastelog',  JSON.stringify(wasteLog));
+    const pfx = locPrefix();
+    localStorage.setItem(pfx + 'sales',     JSON.stringify(sales));
+    localStorage.setItem(pfx + 'onhand',    JSON.stringify(onHand));
+    localStorage.setItem(pfx + 'buffer',    buffer);
+    localStorage.setItem(pfx + 'wastelog',  JSON.stringify(wasteLog));
   } catch(e) {}
 }
 function loadState() {
   try {
-    sales    = JSON.parse(localStorage.getItem('ck_pars_sales'))    || {};
-    onHand   = JSON.parse(localStorage.getItem('ck_pars_onhand'))   || {};
-    buffer   = parseFloat(localStorage.getItem('ck_pars_buffer'))   || 100;
-    wasteLog = JSON.parse(localStorage.getItem('ck_pars_wastelog')) || [];
+    const pfx = locPrefix();
+    sales    = JSON.parse(localStorage.getItem(pfx + 'sales'))    || {};
+    onHand   = JSON.parse(localStorage.getItem(pfx + 'onhand'))   || {};
+    buffer   = parseFloat(localStorage.getItem(pfx + 'buffer'))   || 100;
+    wasteLog = JSON.parse(localStorage.getItem(pfx + 'wastelog')) || [];
   } catch(e) {}
+}
+
+function switchLocation(loc) {
+  if (activeLocation === loc) return;
+  saveState(); // persist current location's data before switching
+  activeLocation = loc;
+  localStorage.setItem('ck_active_location', loc);
+  // Color theme
+  document.body.classList.toggle('loc-ckg', loc === 'CKG');
+  // Switcher buttons
+  document.getElementById('locBtnCKC').classList.toggle('active', loc === 'CKC');
+  document.getElementById('locBtnCKG').classList.toggle('active', loc === 'CKG');
+  // Subtitle
+  document.getElementById('locSubtitle').textContent = loc === 'CKG'
+    ? 'CKG Gilbert · Sales → Prep Needs'
+    : 'CKC Manga / ATP · Sales → Prep Needs';
+  // Load saved state for this location
+  loadState();
+  // Sync buffer UI to restored value (without triggering a saveState)
+  document.getElementById('bufferInput').value = buffer;
+  document.getElementById('bufferDisplay').textContent = buffer === 100 ? '100%' : `${buffer > 100 ? '+' : ''}${buffer - 100}%`;
+  document.getElementById('bufReset').classList.toggle('active', buffer === 100);
+  // Re-render everything currently visible
+  renderSales();
+  updateSummary();
+  updateWasteBadge();
+  if (document.getElementById('tab-pars').classList.contains('active'))     renderPars();
+  if (document.getElementById('tab-spirits').classList.contains('active'))  renderSpirits();
+  if (document.getElementById('tab-movement').classList.contains('active')) renderMovement();
+  if (document.getElementById('tab-waste').classList.contains('active'))    renderWasteLog();
+}
+
+function renderCKGPlaceholder(contentId) {
+  document.getElementById(contentId).innerHTML = `
+    <div class="empty-state" style="padding:80px 24px;">
+      <div style="font-size:36px;margin-bottom:16px;color:var(--gold);">◉</div>
+      <p style="font-size:18px;font-weight:700;color:var(--gold);margin-bottom:10px;">CKG Gilbert — Coming Soon</p>
+      <p style="color:var(--muted);line-height:1.6;">Recipes are being wired up. The location switcher is live.<br>CKC &amp; ATP are fully operational — switch back anytime.</p>
+    </div>`;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -734,6 +799,7 @@ function calcNeeded(applyBuffer = false) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderSales() {
+  if (activeLocation === 'CKG') { renderCKGPlaceholder('salesContent'); return; }
   const menus = [...new Set(DRINKS.map(d => d.menu))];
   let html = '';
 
@@ -790,6 +856,7 @@ function renderSales() {
 
 
 function renderPars() {
+  if (activeLocation === 'CKG') { renderCKGPlaceholder('parsContent'); return; }
   const needed = calcNeeded(true);
   const activeIds = new Set(Object.keys(needed).filter(id => needed[id] > 0));
   Object.keys(onHand).forEach(id => { if (onHand[id] > 0) activeIds.add(id); });
@@ -1379,6 +1446,7 @@ function updateWasteBadge() {
 }
 
 function renderWasteLog() {
+  if (activeLocation === 'CKG') { renderCKGPlaceholder('wasteContent'); updateWasteBadge(); return; }
   updateWasteBadge();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -1871,6 +1939,15 @@ function readAndParse(file) {
 // ══════════════════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Restore active location from last session (before loadState uses the prefix)
+  const savedLoc = localStorage.getItem('ck_active_location') || 'CKC';
+  if (savedLoc === 'CKG') {
+    activeLocation = 'CKG';
+    document.body.classList.add('loc-ckg');
+    document.getElementById('locBtnCKC').classList.remove('active');
+    document.getElementById('locBtnCKG').classList.add('active');
+    document.getElementById('locSubtitle').textContent = 'CKG Gilbert · Sales → Prep Needs';
+  }
   loadState();
   renderSales();
   updateSummary();
@@ -1882,6 +1959,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function renderMovement() {
+  if (activeLocation === 'CKG') { renderCKGPlaceholder('movementContent'); return; }
   const soldDrinks = DRINKS.filter(d => (parseFloat(sales[d.name]) || 0) > 0);
 
   if (!soldDrinks.length) {
@@ -2059,6 +2137,7 @@ function renderMovement() {
 //  RENDER — SPIRITS & ORDERING
 // ══════════════════════════════════════════════════════════════════════════════
 function renderSpirits() {
+  if (activeLocation === 'CKG') { renderCKGPlaceholder('spiritsContent'); return; }
   const spiritCats = ['Spirit', 'Liqueur'];
   const spiritItems = PREP_ITEMS.filter(p => spiritCats.includes(p.cat));
   const needed = calcNeeded(true);

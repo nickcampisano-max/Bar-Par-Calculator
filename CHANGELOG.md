@@ -5,6 +5,24 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-15b] — CKG Location Switcher (Stage 1)
+
+### Added
+- **CKC ↔ CKG location toggle** in the header — pill-style switcher between Clever Koi Central and CKG Gilbert
+- CKG uses a blue color theme (`#5a9ee0`); CKC retains gold (`#c9a84c`)
+- Separate localStorage keys per location: `ck_pars_*` (CKC) vs `ckg_pars_*` (CKG) — switching locations saves and restores each location's sales, on-hand, buffer, and waste log independently
+- `switchLocation()` — saves current location state, loads the target location's state, syncs buffer UI, and re-renders all tabs
+- `renderCKGPlaceholder()` — "CKG Gilbert — Coming Soon" message shown on all tabs while CKG recipes are being wired up
+- Subtitle under the title updates to reflect the active location
+- Page reload restores the last-used location from localStorage
+
+### Notes / Pending
+- **Stage 2**: Wire CKG Classics cocktails (Sgroppino al Limone, Martinez, Corpse Reviver #2, Tom Collins; Pornstar Martini with Amaretto variant)
+- **Stage 3**: Wire CKG Manga cocktails (PDF received, batch recipes pending)
+- CKC Monday/Thursday workflow is fully unaffected — switching to CKG and back is seamless
+
+---
+
 ## [2026-07-15] — Locked Well Standard Spirit Updates
 
 ### Changed
