@@ -5,6 +5,115 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-16f] — CKG Classics + Manga Cross-Checked Against Latest Docs (Classics PDF, Prep Recipes, Manga Menu Specs)
+
+### Fixed
+- **`HISTORICAL_AVG` "sold ~X/wk on average in 2025" hint suppressed for CKG.** This lookup table was built entirely from CKC's own 2025 Toast history before CKG existed, keyed only by drink name with no location scoping. Since 72+ drink names are shared between CKC and CKG, it was displaying CKC's historical numbers on 40 different CKG drinks (Enabler, Manhattan, Negroni, Aviation, Scarlet Sora, etc.) as if they were CKG's own sales history. Display-only — never affected par/order calculations. Suppressed entirely for CKG until Nick provides real CKG historical data.
+
+Nick uploaded three more current docs: "CK Classic Cocktail Recipes.pdf", "CK MANGA PREP RECIPES.pdf" (internally dated "CKG MANGA PREP RECIPES 2026"), and "CKG MANGA LAYOUT.pdf" (internally dated "CKG MANGA MENU SPECS 2026" — the most current-dated CKG doc seen yet). Diffed all three against the full current build.
+
+### Result: CKG Classics (88 drinks) — verified clean
+Every ingredient and quantity in the new Classics PDF's CKG-specific section (pages 10–18, pre-well-swap "Gruven/Royal Standard/Mr Black" naming) matches the current build exactly once the standing well-swap is applied. No changes needed.
+
+### Result: CKG Manga (19 drinks + 3 NA) — verified clean, including the four flagged items
+The new "CKG MANGA MENU SPECS 2026" doc independently confirms every quantity from the `2026-07-16e` revision — Zenitsu Sour (Tenjaku+Cognac), Long Thailand Iced Tea (batch), Sideline View NA (bombgave recipe), Midnight Oni Highball (Tenjaku), and Scarlet Sora (Zubrowka) all match exactly. This is a second independent document confirming those four changes were correct.
+
+### Added
+- **Aviation** (CKG Classics) — the new Classics PDF explicitly notes "(2.5 AVIATION BATCH)" under CKG's Aviation spec, matching the same dual-tracking pattern CKC's own Aviation already uses (batch + reconstituted individual pours). Added `aviation_b:2.5` to CKG's Aviation entry to match.
+- **3 new CKG Manga "House Shots"** — the 2026 Menu Specs doc's "House Shots" section finally gives real recipes for three items that previously only existed as unlinked batch recipes with no cocktail spec:
+  - **Golden Myth**: 4oz pour of new batch item `golden_myth_b`
+  - **Belly Shot**: 2oz pour of new batch item `belly_shot_b` (pork-fat-washed Dickel Bourbon) — served with a 4oz side of pork belly broth, left untracked since no broth recipe was provided
+  - **Thai Manna**: 2oz pour of new batch item `thai_mana_b`
+  - New `CKG Manga House Shots` menu category added; `MENU_LABELS` and `LOW_USE_PROGRAMS` extended for both this and the previously-untracked `CKG Well Pours` category.
+
+### Notes / Pending — needs Nick's input, not guessed
+- **Vanilla Demerara** — appears repeatedly across multiple prep docs as a distinct syrup from plain Demerara, used in Liquid Escape. Still using plain `demerara` in the build. Confirm if this is a real distinct product needing its own PREP_ITEM.
+- **Thai Tea NA batch recipe is internally inconsistent across Nick's own docs** — the two "menu spec" docs (June 2025 and the new 2026 version) both say 2qt brewed tea / 14oz condensed milk / 4oz coconut cream; the two "prep recipe" docs (September 2025 and its 2026 twin) both say 4qt / 16oz / 8oz — a different milk:cream ratio. Doesn't affect the app (still tracked as an opaque 6oz pour) but the kitchen is working off two different ratios for the same batch.
+- **Pimm's Cup batch quantity** — the new Classics PDF footnotes "(1.75 PIMMS BATCH)" under CKG's Pimm's Cup; current build uses `pimms_b:1.0`. Given CKC's own Pimm's Cup double-tracks both the batch and its reconstituted components (a pre-existing pattern from Stage 1), didn't want to guess and risk double-counting — flagging rather than changing.
+
+### Verification
+- Node harness: 205 PREP_ITEMS, 237 DRINKS (110 CKC, 127 CKG), zero duplicate ids, zero duplicate name+loc combos, zero dangling ingredient references.
+- CKG Items.csv import simulation: 108 matched, 3 ignored, 1 unmatched (`Long Island`, still no recipe on file), zero orphaned matches.
+
+---
+
+## [2026-07-16e] — CKG Manga Rebuilt Against Bar Manager's Current Spec Sheet
+
+Nick's bar manager sent a new "CKG Manga Menu June 2025" spec PDF, described as the current version. Diffed it against all 19 built CKG Manga drinks (plus the 3 N/A drinks) — nearly every recipe had at least a minor quantity change from the version built in Stage 2, which came from an earlier/less precise document.
+
+### Changed — quantity/ingredient corrections (mechanical, applied directly)
+- **Backyard Kid**: base spirit `campo_repo` → `arette_repo` (spec now says Arette Reposado, not Campo); Ember Syrup 1oz → 0.75oz
+- **Bad Man Lighter**: added `banana_liq:0.5` (Pairidaeza Banana Liqueur — missing from the original build entirely); Giffard Passionfruit 0.5oz → 0.25oz; Thai Tea concentrate 0.5oz → 1oz
+- **Enabler**: Maple Syrup 0.75oz → 1oz (bourbon still collapses to `bardstown_bbn` per the standing Dickel/Bardstown policy — spec now says "Dickel 12yr" but that's the same locked well bourbon)
+- **Elisabetta's Slumber**: Amaro Nonino 1.5oz → 1oz; Pork Fat Washed Zucca 0.5oz → 1oz; added `honey_s:0.125` (barspoon "Runny Hunny") — this had been silently dropped by the original parsing script, same bug class as the Crystal Castle fix, caught by this diff
+- **Koi Kooler**: Negroni Sixteen (Aperol sub) 0.5oz → 0.25oz; Lemon 0.75oz → 1oz; Lemongrass Syrup 0.5oz → 0.75oz; added `grapefruit:0.25` (new ingredient)
+- **Liquid Escape - Reposado**: base spirit `campo_repo` → `arette_repo`, matching Backyard Kid's correction
+- **Pandan B-Bop**: Pineapple 0.75oz → 0.5oz
+- **Sunburst**: swapped `aa_pine` (Acid Adjusted Pineapple) → plain `pineapple_j` per the new spec; added `citric_simple:0.25`
+- **Yotei Six**: Pork Fat Vodka 1oz → 1.25oz; Ember Syrup 1.25oz → 0.75oz; added `lemon:0.25`
+- **Ube Colada NA**: Lime 0.75oz → 0.5oz
+
+### Changed — real recipe/product swaps
+- **Midnight Oni Highball**: `dickel_rye:0.5` (Roulette Rye) replaced with `tenjaku_whisky:1.0` — this is a real Tenjaku Whisky pour, not the same thing as Zenitsu's Suntory Toki. Re-added `tenjaku_whisky` as a PREP_ITEM (had been removed earlier this session on the assumption Suntory Toki fully replaced it everywhere — it didn't). Akashi Ume 1.5oz → 1oz, Oni Plum Cordial 1oz → 0.75oz.
+- **Scarlet Sora**: base vodka `monopolowa_v` → `zubrowka_v` (Zubrowka, an existing distinct specialty vodka — this is not a well-vodka drink, don't apply the Gruven→Monopolowa well swap here). Peach Puree 0.5oz → 0.25oz; Pineapple Gum 0.25oz → 0.5oz.
+
+### Renamed (to match Toast/spec exactly, simplifies matching)
+- CKG's **"Lemongrass Swizzle NA"** → **"Lemongrass Refresher NA"**
+- CKG's **"Ube'Be Colada NA"** → **"Ube Colada NA"**
+- Removed the now-redundant `LOCATION_ALIASES.CKG` override (exact-name matching + existing global aliases cover both locations correctly post-rename); updated `na ube colada` alias target accordingly
+
+### Resolved — superseded Nick's earlier direct answers; confirmed 2026-07-16 ("Use that current doc as the official doc")
+These four initially contradicted things Nick told me directly in this same session. Flagged for confirmation when applied; Nick has since confirmed the new spec doc is authoritative, so these stand as final:
+- **Zenitsu Zour**: now `Tenjaku Whisky + Lecarre Cognac` (`tenjaku_whisky:1, cognac_r:1, aa_oj:1, coconut_c:1, yuzu:0.25, ginga_s:0.25`) — supersedes the earlier "Use Suntory" build (Suntory Toki + Couvignac). Red Blend Float dropped.
+- **Long Thailand Iced Tea (CKG)**: now uses the pre-made batch (`long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5`) — supersedes the earlier "intentional difference" build from individual spirits.
+- **Sideline View NA**: now `lime:1, bombgave:1, passion_p:1.5` — supersedes the earlier "same as CKC" build (`lime:2, passion_p:1.5`). CKC's own Sideline View NA is untouched.
+- **Thai Tea NA**: now `condensed_thai_tea:6.0` (new batch PREP_ITEM: 2qt brewed tea + 14oz condensed milk + 4oz coconut cream) — supersedes the earlier `thai_tea:1.75, coconut_c:1.5` approximation.
+
+### Verification
+- Re-ran the Node harness: 202 PREP_ITEMS, 234 DRINKS (110 CKC, 124 CKG), zero duplicate ids, zero duplicate name+loc combos, zero dangling ingredient references.
+- Re-ran the CKG Items.csv import simulation: 108 matched, 3 ignored, 1 unmatched (`Long Island` — still no recipe on file), zero orphaned matches.
+
+---
+
+## [2026-07-16d] — Remaining CKG Gaps Closed (Hey Bartender!, Well Pours, etc.)
+
+### Added
+- **Hey Bartender!** (CKG) — added as a note-only stub, same pattern as CKC's version, but with an accurate note: it's a bartender's-choice custom build (guest gives a flavor profile), not a missing spec — there's no fixed recipe to track
+- **Sideline View NA** (CKG) — same recipe as CKC: `lime:2, passion_p:1.5`
+- **Thai Tea NA** (CKG) — Long Thailand Iced Tea with all alcohol removed: `thai_tea:1.75, coconut_c:1.5`
+- **Aperol Spritz** (CKG) — `lemon:0.75, simple_s:0.5, negroni16:2, prosecco_w:3`. Nick's spec said "2 aperol" — substituted to `negroni16` per the standing Aperol → Negroni Sixteen well-guide policy already applied elsewhere in CKG. Flagged for confirmation since he didn't explicitly re-affirm the swap this time.
+- **Face Planter Punch** (CKG) — its own distinct recipe from CKC's, not a copy: `kiwi_p:2, lime:2, pineapple_j:4, hamilton_86:4, cognac_r:1, goslings_r:1, worthy_park:0.5` (mango/orange bitters not tracked, same convention as everywhere else). "151 rum" mapped to existing `worthy_park` (Worthy Park Overproof) — flag if a different overproof rum is actually stocked.
+- **6 new "CKG Well Pours" entries** (Well Vodka, Well Gin, Well Tequila, Well Bourbon, Well Rye, Well Mezcal) — single-spirit 2oz pours, new `CKG Well Pours` menu so they stay visually separate from cocktails on the Sales tab, now counting toward spirit ordering instead of being invisible to the app
+- `na thai tea` added to `NAME_ALIASES`
+
+### Verification
+- Re-ran the CKG Items.csv against the fixed matcher: 108 matched, 3 correctly ignored, 1 genuinely unmatched (`Long Island` — confirmed a real Long Island Iced Tea, not a Long Thailand typo, but no recipe/quantities received yet). Zero orphaned matches.
+
+---
+
+## [2026-07-16c] — CKG Toast CSV Audit + Location-Aware Import Fix
+
+### Fixed
+- **Critical**: CSV name-matching (`DRINK_LOOKUP`) was built once globally from every location's `DRINKS` + `NAME_ALIASES`, so a CKG Toast row could silently resolve to a CKC-only canonical name that doesn't exist in CKG's drink list. The import banner would report a false "✓ matched," but `locDrinks()` would never find that name again — sales data recorded, then invisibly dropped from every calculation. Confirmed against a real month of CKG product mix: 6 rows (Face Planter Punch, Aperol Spritz, Hey Bartender ×3 variants, N/A - Sideline View) were being silently lost this way.
+- Replaced the global `DRINK_LOOKUP` with `buildDrinkLookup()`, called fresh per import and scoped to `locDrinks()` — an alias only resolves if its target actually exists in the active location. New `LOCATION_ALIASES` object holds per-location overrides for cases where identical Toast text means a different drink at each location (e.g. "N/A - Lemongrass Refresher" → CKG's `Lemongrass Swizzle NA`, distinct from CKC's own `Lemongrass Refresher NA`).
+- Added CKG-specific aliases: `Gin & Tonic` → `Gin and Tonic`, `South Side` → `Southside`, `N/A - Ube Colada` → `Ube'Be Colada NA`, `Whiskey Sour W/Egg` / `Whiskey Sour-No Egg` → `Whiskey Sour`
+- `N/A - Mocktail` / `N/A - Club Soda` now correctly ignored (prefix wasn't stripped before the ignore-list check)
+
+### Changed
+- **Liquid Escape** split into two real entries — `Liquid Escape - Vodka` and `Liquid Escape - Reposado` — matching how Toast actually rings it. Replaces the earlier 50/50 blended-line workaround from Stage 2, now that real sales data confirms it's tracked as two distinct choices (38 reposado vs. 20 vodka sold in the sample month).
+- **Thai Gimlet** split into `Thai Gimlet Gin` and `Thai Gimlet Vodka` — Toast data showed a near-even split (26 gin / 24 vodka), so the single gin-only entry was misattributing roughly half its volume to the wrong spirit.
+
+### Notes / Pending — needs Nick's input, not guessed
+- **Hey Bartender!** — 56 combined sales across CKG in one month (regular + ITT + N/A variants) with no recipe anywhere, including CKC's own version, which is also just a placeholder
+- **N/A - Sideline View** — 53 sales, no CKG recipe on file (not in the Manga NA spec received). CKC has a recipe (`lime:2, passion_p:1.5`) — confirm if CKG's is the same
+- **N/A - Thai Tea** — 96 sales, highest-volume unmatched item. Needs a real spec (or confirm it's just brewed Thai tea with no other tracked ingredient)
+- **Aperol Spritz / House Spritz** — 10 sales; CKC's "House Spritz" is itself an unbuilt placeholder
+- **Face Planter Punch** — 2 sales at CKG; CKC has a real recipe but no confirmation CKG uses the same one
+- **Well Vodka / Gin / Tequila / Bourbon / Rye / Mezcal** — 80 combined neat/rocks pours this month, currently untracked entirely. Recommending these get modeled as single-spirit "drinks" (one ingredient, standard pour size) so they count toward spirit ordering — need Nick to confirm pour size and whether he wants that
+- **Long Island** — 3 sales; unclear if this is a real "Long Island Iced Tea" or a mistyped/shorthand "Long Thailand Iced Tea"
+
+---
+
 ## [2026-07-16b] — Jade Mist Wander Recipe Added
 
 ### Added

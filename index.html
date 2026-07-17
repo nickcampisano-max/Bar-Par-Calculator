@@ -425,6 +425,10 @@ const PREP_ITEMS = [
   { id:'oni_plum_c',    name:'Oni Plum Cordial',        cat:'Batch / Cordial', btl:750 },
   { id:'pandan_gum_c',  name:'Pandan Gum Cordial',      cat:'Batch / Cordial', btl:750 },
   { id:'long_thai_b',      name:'Long Thai Batch',              cat:'Batch / Cordial', btl:750 },
+  { id:'condensed_thai_tea', name:'Condensed Thai Tea (Brewed Tea + Condensed Milk + Coconut Cream)', cat:'Batch / Cordial', btl:750 },
+  { id:'golden_myth_b',   name:'Golden Myth Batch',            cat:'Batch / Cordial', btl:750 },
+  { id:'belly_shot_b',    name:'Belly Shot (Pork Fat Washed Dickel Bourbon)', cat:'Batch / Cordial', btl:750 },
+  { id:'thai_mana_b',     name:'Thai Mana Batch',              cat:'Batch / Cordial', btl:750 },
   { id:'aviation_b',      name:'Aviation Batch',               cat:'Batch / Cordial', btl:750 },
   { id:'golden_elixir_b', name:'Golden Elixir Batch',          cat:'Batch / Cordial', btl:750 },
   { id:'mr_paradise_b',   name:'Mr. Paradise Batch',           cat:'Batch / Cordial', btl:750 },
@@ -591,6 +595,7 @@ const PREP_ITEMS = [
   { id:'swedish_punsch', name:'Swedish Punsch', cat:'Liqueur', btl:750 },
   { id:'suntory_toki', name:'Suntory Toki Whisky', cat:'Spirit', btl:750 },
   { id:'couvignac', name:'Couvignac', cat:'Spirit', btl:750 },
+  { id:'tenjaku_whisky', name:'Tenjaku Whisky', cat:'Spirit', btl:750 },
   { id:'thai_syrup', name:'Thai Syrup', cat:'Syrup', btl:473 },
   { id:'tuve_bitter_liq', name:'Tuve Bitter Liqueur', cat:'Liqueur', btl:750 },
   { id:'yellow_chartreuse', name:'Yellow Chartreuse', cat:'Liqueur', btl:750 },
@@ -776,12 +781,13 @@ const DRINKS = [
   { name:'Vodka Tonic', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, lime:0.25, simple_s:0.25 } },
   { name:'Pornstar Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:1.5, lemongrass_s:0.5, lemon:0.75, lime:0.25, passion_p:0.5, amaretto:0.75 } },
   { name:'Sgroppino Al Limone', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:1.0, prosecco_w:1.5, citrus_oleo:0.75, simple_s:0.25 } },
-  { name:'Aviation', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, maraschino_l:0.5, creme_violette:0.062, lemon:0.75, simple_s:0.5 } },
+  { name:'Aviation', menu:'CKG Classics', loc:'CKG', ing:{ aviation_b:2.5, monopolowa_g:2.0, maraschino_l:0.5, creme_violette:0.062, lemon:0.75, simple_s:0.5 } },
   { name:'Bees Knees', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lemon:0.75, honey_s:1.0 } },
   { name:'Clover Club', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:1.5, house_dry_verm:0.5, aquafaba:0.75, lemon:0.75, raspberry_gum:0.5, grenadine:0.75 } },
   { name:'Corpse Reviver #2', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:0.75, lillet_blanc:0.75, eldee_ts:0.75, lemon:0.75 } },
   { name:'French 75', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lemon:0.75, simple_s:0.5 } },
-  { name:'Thai Gimlet', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.75, thai_syrup:0.75 } },
+  { name:'Thai Gimlet Gin', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.75, thai_syrup:0.75 } },
+  { name:'Thai Gimlet Vodka', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_v:2.0, lime:0.75, thai_syrup:0.75 } },
   { name:'Gin and Tonic', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.0, lime:0.25, simple_s:0.25 } },
   { name:'Gin Martini', menu:'CKG Classics', loc:'CKG', ing:{ monopolowa_g:2.75, house_dry_verm:0.75 } },
   { name:'Martinez', menu:'CKG Classics', loc:'CKG', ing:{ hayman_old_tom:1.5, agricanto_cherry:0.75, house_sweet_verm:0.75 } },
@@ -848,30 +854,47 @@ const DRINKS = [
   { name:'Americano', menu:'CKG Classics', loc:'CKG', ing:{ house_sweet_verm:1.0, tuve_bitter_liq:1.0 } },
   { name:'Rossini', menu:'CKG Classics', loc:'CKG', ing:{ strawberry_p:0.5 } },
   // ── CKG Manga ────────────────────────────────────────────────────────────
-  { name:'Backyard Kid', menu:'CKG Manga', loc:'CKG', ing:{ campo_repo:1.5, ancho_reyes:0.5, giffard_pass:0.5, lemon:0.5, lime:0.5, ember_s:1.0 } },
-  { name:'Bad Man Lighter', menu:'CKG Manga', loc:'CKG', ing:{ roncolon_banana_rum:1.25, giffard_pass:0.5, bandoeng_pandan:0.25, grilled_lemon:0.5, pineapple_j:0.75, thai_tea:0.5 } },
+  { name:'Backyard Kid', menu:'CKG Manga', loc:'CKG', ing:{ arette_repo:1.5, ancho_reyes:0.5, giffard_pass:0.5, lemon:0.5, lime:0.5, ember_s:0.75 } },
+  { name:'Bad Man Lighter', menu:'CKG Manga', loc:'CKG', ing:{ roncolon_banana_rum:1.25, banana_liq:0.5, giffard_pass:0.25, bandoeng_pandan:0.25, grilled_lemon:0.5, pineapple_j:0.75, thai_tea:1.0 } },
   { name:'Crystal Castle', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_g:2.0, crystal_c:1.5, chartreuse_g:0.125 } },
   { name:'Dissonant Whispers', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.0, velvet_fal:0.5, supercassis:0.25, cardamaro_l:0.25 } },
-  { name:'Enabler', menu:'CKG Manga', loc:'CKG', ing:{ bardstown_bbn:2.5, grilled_lemon:0.75, maple_s:0.75 } },
-  { name:'Elisabetta\'s Slumber', menu:'CKG Manga', loc:'CKG', ing:{ nonino_amaro:1.5, zucca_porkbelly:0.5, ancho_verde:0.25, giffard_pass:0.25 } },
-  { name:'Koi Kooler', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, negroni16:0.5, giffard_lychee:0.5, lemon:0.75, lemongrass_s:0.5 } },
+  { name:'Enabler', menu:'CKG Manga', loc:'CKG', ing:{ bardstown_bbn:2.5, grilled_lemon:0.75, maple_s:1.0 } },
+  { name:'Elisabetta\'s Slumber', menu:'CKG Manga', loc:'CKG', ing:{ nonino_amaro:1.0, zucca_porkbelly:1.0, ancho_verde:0.25, giffard_pass:0.25, honey_s:0.125 } },
+  { name:'Koi Kooler', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, negroni16:0.25, giffard_lychee:0.5, lemon:1.0, lemongrass_s:0.75, grapefruit:0.25 } },
   { name:'Lemongrass Swizzle', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:2.0, lemongrass_s:1.0, cucumber_w:0.75, lime:0.5, yuzu:0.25 } },
   { name:'License To Drive', menu:'CKG Manga', loc:'CKG', ing:{ dickel_rye:1.5, cappelletti_aperitivo:0.75, solera_sherry:0.75 } },
-  { name:'Liquid Escape', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:0.75, campo_repo:0.75, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
-  { name:'Long Thailand Iced Tea', menu:'CKG Manga', loc:'CKG', ing:{ jelinek_fernet:1.0, denizen_r:0.25, bardstown_bbn:0.25, el_dist_tequila:0.25, thai_tea:1.75, coconut_c:1.5 } },
+  { name:'Liquid Escape - Vodka', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
+  { name:'Liquid Escape - Reposado', menu:'CKG Manga', loc:'CKG', ing:{ arette_repo:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
+  { name:'Long Thailand Iced Tea', menu:'CKG Manga', loc:'CKG', ing:{ long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5 } },
   { name:'Lucid Fuji', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.0, monopolowa_g:1.0, lucid_c:1.5 } },
-  { name:'Midnight Oni Highball', menu:'CKG Manga', loc:'CKG', ing:{ akashi_ume:1.5, dickel_rye:0.5, oni_plum_c:1.0 } },
-  { name:'Pandan B-Bop', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.5, bandoeng_pandan:0.5, becherovka:0.5, pineapple_j:0.75, vanilla_org:0.25, passion_p:0.25, lemon:1.0 } },
+  { name:'Midnight Oni Highball', menu:'CKG Manga', loc:'CKG', ing:{ akashi_ume:1.0, tenjaku_whisky:1.0, oni_plum_c:0.75 } },
+  { name:'Pandan B-Bop', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.5, bandoeng_pandan:0.5, becherovka:0.5, pineapple_j:0.5, vanilla_org:0.25, passion_p:0.25, lemon:1.0 } },
   { name:'Riding The Pine', menu:'CKG Manga', loc:'CKG', ing:{ lillet_rouge:1.5, navy_gin:1.0, lime:1.0, passion_p:0.75 } },
-  { name:'Scarlet Sora', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:1.5, lillet_blanc:1.0, lemon:0.5, lime:0.25, peach_p:0.5, bombgave:0.25, pine_gum:0.25 } },
-  { name:'Sunburst', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.25, cappelletti_aperitivo:0.25, aa_pine:0.75, peach_p:0.5, honey_s:0.25 } },
-  { name:'Yotei Six', menu:'CKG Manga', loc:'CKG', ing:{ pork_fat_vodka:1.0, ember_s:1.25, lime:0.5, clamato:1.5 } },
-  { name:'Zenitsu Zour', menu:'CKG Manga', loc:'CKG', ing:{ suntory_toki:1.0, couvignac:1.0, aa_oj:1.0, coconut_c:1.0, yuzu:0.25, ginga_s:0.25, red_blend_wine:0.25 } },
+  { name:'Scarlet Sora', menu:'CKG Manga', loc:'CKG', ing:{ zubrowka_v:1.5, lillet_blanc:1.0, lemon:0.5, lime:0.25, peach_p:0.25, bombgave:0.25, pine_gum:0.5 } },
+  { name:'Sunburst', menu:'CKG Manga', loc:'CKG', ing:{ rayu_mezcal:2.25, cappelletti_aperitivo:0.25, pineapple_j:0.75, peach_p:0.5, honey_s:0.25, citric_simple:0.25 } },
+  { name:'Yotei Six', menu:'CKG Manga', loc:'CKG', ing:{ pork_fat_vodka:1.25, ember_s:0.75, lime:0.5, lemon:0.25, clamato:1.5 } },
+  { name:'Zenitsu Zour', menu:'CKG Manga', loc:'CKG', ing:{ tenjaku_whisky:1.0, cognac_r:1.0, aa_oj:1.0, coconut_c:1.0, yuzu:0.25, ginga_s:0.25 } },
   { name:'Jade Mist Wander', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, chareau_l:0.25, midori_liq:0.25, vanilla_s:0.5, citric_simple:0.25, berry_momokawa_sake:0.5 } },
   // ── CKG Manga — Non-Alcoholic ────────────────────────────────────────────
-  { name:'Lemongrass Swizzle NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lemongrass_s:2.0, lime:1.0, yuzu:0.5, cucumber_w:1.5 } },
+  { name:'Lemongrass Refresher NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lemongrass_s:2.0, lime:1.0, yuzu:0.5, cucumber_w:1.5 } },
   { name:'Riding The Pine NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lime:1.0, bombgave:1.0, passion_p:1.0 } },
-  { name:'Ube\'Be Colada NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ pineapple_j:2.0, coconut_c:1.5, lime:0.75, kiwi_p:0.5 } },
+  { name:'Ube Colada NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ pineapple_j:2.0, coconut_c:1.5, lime:0.5, kiwi_p:0.5 } },
+  { name:'Sideline View NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lime:1.0, bombgave:1.0, passion_p:1.5 } },
+  { name:'Thai Tea NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ condensed_thai_tea:6.0 } },
+  { name:'Hey Bartender!', menu:'CKG Manga', loc:'CKG', ing:{}, note:'Bartender\'s choice — guest gives a flavor profile, no fixed recipe (well or top-shelf, built to order)' },
+  { name:'Aperol Spritz', menu:'CKG Classics', loc:'CKG', ing:{ lemon:0.75, simple_s:0.5, negroni16:2.0, prosecco_w:3.0 } },
+  { name:'Face Planter Punch', menu:'CKG Manga', loc:'CKG', ing:{ kiwi_p:2.0, lime:2.0, pineapple_j:4.0, hamilton_86:4.0, cognac_r:1.0, goslings_r:1.0, worthy_park:0.5 } },
+  // ── CKG Manga House Shots ────────────────────────────────────────────────
+  { name:'Golden Myth', menu:'CKG Manga House Shots', loc:'CKG', ing:{ golden_myth_b:4.0 } },
+  { name:'Belly Shot', menu:'CKG Manga House Shots', loc:'CKG', ing:{ belly_shot_b:2.0 }, note:'Served with a 4oz side of pork belly broth (untracked — no broth recipe on file)' },
+  { name:'Thai Manna', menu:'CKG Manga House Shots', loc:'CKG', ing:{ thai_mana_b:2.0 } },
+  // ── CKG Well Pours (neat/rocks, no cocktail recipe) ─────────────────────────
+  { name:'Well Vodka', menu:'CKG Well Pours', loc:'CKG', ing:{ monopolowa_v:2.0 } },
+  { name:'Well Gin', menu:'CKG Well Pours', loc:'CKG', ing:{ monopolowa_g:2.0 } },
+  { name:'Well Tequila', menu:'CKG Well Pours', loc:'CKG', ing:{ el_dist_tequila:2.0 } },
+  { name:'Well Bourbon', menu:'CKG Well Pours', loc:'CKG', ing:{ bardstown_bbn:2.0 } },
+  { name:'Well Rye', menu:'CKG Well Pours', loc:'CKG', ing:{ dickel_rye:2.0 } },
+  { name:'Well Mezcal', menu:'CKG Well Pours', loc:'CKG', ing:{ rayu_mezcal:2.0 } },
 ];
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -1009,7 +1032,7 @@ function renderSales() {
             <input class="qty-input${qty ? ' has-value' : ''}" type="number" min="0" step="1"
               value="${qty}" placeholder="0"
               oninput="setSales('${safe}', this.value); this.classList.toggle('has-value', !!this.value)">
-            ${HISTORICAL_AVG[d.name] ? `<div class="hist-avg">↳ sold ~${Math.round(HISTORICAL_AVG[d.name])}/wk on average in 2025</div>` : ''}
+            ${(activeLocation !== 'CKG' && HISTORICAL_AVG[d.name]) ? `<div class="hist-avg">↳ sold ~${Math.round(HISTORICAL_AVG[d.name])}/wk on average in 2025</div>` : ''}
           </td>
         </tr>`;
     });
@@ -1267,7 +1290,7 @@ function printOrderSheet() {
     ['Vodka',              ['monopolowa_v','zubrowka_v','haku_v','pork_fat_vodka']],
     ['Gin / Shochu',       ['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto','hayman_old_tom']],
     ['Rum',                ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri','rhum_jm_100','roncolon_banana_rum']],
-    ['Whiskey',            ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki']],
+    ['Whiskey',            ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki','tenjaku_whisky']],
     ['Agave',              ['el_dist_tequila','arette_repo','arette_blanco','rayu_mezcal','campo_repo']],
     ['Other Spirits',      ['pisco_r','cognac_r','apple_jack','pear_brandy','couvignac']],
     ['Liqueurs & Fortified',['genepy','lillet_rouge','lillet_blanc','banana_liq','velvet_fal','ancho_reyes',
@@ -1940,6 +1963,13 @@ const NAME_ALIASES = {
   'tuxedo no 2':                'Tuxedo No. 2',
   'tuxedo no2':                 'Tuxedo No. 2',
   'sherry cobbler':             'Sherry Cobbler',
+  // CKG Toast quirks (from Items.csv audit, 2026-07-16)
+  'gin tonic':                  'Gin and Tonic',
+  'south side':                 'Southside',
+  'na ube colada':              "Ube Colada NA",
+  'na thai tea':                'Thai Tea NA',
+  'whiskey sour wegg':          'Whiskey Sour',
+  'whiskey sourno egg':         'Whiskey Sour',
 };
 
 function normalizeName(str) {
@@ -1962,30 +1992,55 @@ const IGNORE_ITEMS = new Set([
   'honest liar atp', 'rummin wild atp', 'calpico milk punch atp',
   'banana stand rc', 'endless summer rc',
   'house aperitivo', 'house aperitivo atp',
+  'itt classic cocktail',
+  'n/a - mocktail', 'n/a - club soda',
 ]);
 
+// Per-location alias overrides — for cases where the SAME raw Toast text
+// means a different drink depending on which location it was rung at.
+// Checked before the global NAME_ALIASES, and only applied for that location.
+// (As of 2026-07-16, CKG's NA drinks were renamed to match Toast/spec text
+// directly — "Lemongrass Refresher NA" and "Ube Colada NA" — so no location
+// override is currently needed; the global NAME_ALIASES entries cover both.)
+const LOCATION_ALIASES = {
+  CKG: {},
+};
 
-// Build lookup: normalized drink name → canonical name
-const DRINK_LOOKUP = {};
-DRINKS.forEach(d => {
-  DRINK_LOOKUP[normalizeName(d.name)] = d.name;
-});
-Object.entries(NAME_ALIASES).forEach(([alias, canonical]) => {
-  DRINK_LOOKUP[normalizeName(alias)] = canonical;
-});
+// Build lookup: normalized drink name → canonical name, scoped to whichever
+// location is currently active. Prevents a CKG Toast row from silently
+// matching a CKC-only (or vice versa) canonical name that doesn't actually
+// exist in the active location's drink list — such a match would set
+// `sales[name]` but locDrinks() would never find it again, losing the data
+// with no warning shown to the user.
+function buildDrinkLookup() {
+  const lookup = {};
+  const scopedNames = new Set(locDrinks().map(d => d.name));
+  scopedNames.forEach(name => { lookup[normalizeName(name)] = name; });
+  // Global aliases only apply if their target actually exists in this location
+  Object.entries(NAME_ALIASES).forEach(([alias, canonical]) => {
+    if (scopedNames.has(canonical)) lookup[normalizeName(alias)] = canonical;
+  });
+  // Location-specific overrides take priority and are checked the same way
+  const locOverrides = LOCATION_ALIASES[activeLocation] || {};
+  Object.entries(locOverrides).forEach(([alias, canonical]) => {
+    if (scopedNames.has(canonical)) lookup[normalizeName(alias)] = canonical;
+  });
+  return lookup;
+}
 
 function matchDrinkName(raw) {
   // Check ignore list first
   if (IGNORE_ITEMS.has(raw.toLowerCase().trim())) return '__ignore__';
+  const lookup = buildDrinkLookup();
   // Try cleaned name (strips ITT, FEATURE, ATP, RC)
   const cleaned = cleanToastName(raw);
   const norm = normalizeName(cleaned);
-  if (DRINK_LOOKUP[norm]) return DRINK_LOOKUP[norm];
+  if (lookup[norm]) return lookup[norm];
   // Also try original raw in case cleaning went wrong
   const normRaw = normalizeName(raw);
-  if (DRINK_LOOKUP[normRaw]) return DRINK_LOOKUP[normRaw];
+  if (lookup[normRaw]) return lookup[normRaw];
   // Partial match
-  for (const [key, canonical] of Object.entries(DRINK_LOOKUP)) {
+  for (const [key, canonical] of Object.entries(lookup)) {
     if (norm.includes(key) || key.includes(norm)) return canonical;
   }
   return null;
@@ -2194,6 +2249,8 @@ function renderMovement() {
     'ATP':          'ATP Cocktails',
     'CKG Classics': 'CKG Classic Cocktails',
     'CKG Manga':    'CKG Manga Cocktails',
+    'CKG Manga House Shots': 'CKG Manga House Shots',
+    'CKG Well Pours': 'CKG Well Pours',
   };
   const menus = [...new Set(scopedDrinks.map(d => d.menu))];
 
@@ -2247,6 +2304,8 @@ function renderMovement() {
     { key:'Classics',     label:'Classics' },
     { key:'CKG Manga',    label:'CKG Manga' },
     { key:'CKG Classics', label:'CKG Classics' },
+    { key:'CKG Manga House Shots', label:'CKG House Shots' },
+    { key:'CKG Well Pours', label:'CKG Well Pours' },
   ];
   const anyLowUse = LOW_USE_PROGRAMS.some(({ key }) => lowUseItems.some(x => x.drink && x.drink.menu === key));
   if (anyLowUse) {
@@ -2326,7 +2385,7 @@ function renderSpirits() {
     ['Vodka',       ['monopolowa_v','zubrowka_v','haku_v','pork_fat_vodka']],
     ['Gin / Shochu',['monopolowa_g','navy_gin','roku_gin','iichiko_s','kuro_kabuto','hayman_old_tom']],
     ['Rum',         ['denizen_r','goslings_r','worthy_park','rhum_jm','cachaca_r','probitas_r','kalani_r','hamilton_86','diplomatico_r','rhum_agri','rhum_jm_100','roncolon_banana_rum']],
-    ['Whiskey',     ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki']],
+    ['Whiskey',     ['dickel_rye','dickel_bourbon','bankNote_scotch','bardstown_bbn','akashi_whisky','bankNote_peated','suntory_toki','tenjaku_whisky']],
     ['Agave',       ['el_dist_tequila','arette_repo','arette_blanco','rayu_mezcal','campo_repo']],
     ['Other Spirits',['pisco_r','cognac_r','apple_jack','pear_brandy','couvignac']],
     ['Liqueurs & Fortified', ['genepy','lillet_rouge','lillet_blanc','banana_liq','velvet_fal','ancho_reyes',
