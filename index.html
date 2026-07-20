@@ -269,6 +269,7 @@ body.loc-ckg .loc-btn.active { color: #fff; }
 <button class="btn btn-ghost" onclick="clearSales()">Clear Sales</button>
     <button class="btn btn-ghost" onclick="clearOnHand()">Clear On Hand</button>
     <button class="btn" onclick="printPrepSheet()">🖨 Print Prep Sheet</button>
+    <button class="btn" onclick="printOnHandSheet()">🖨 Print On-Hand Sheet</button>
     <button class="btn btn-primary" onclick="showTab('pars')">View Pars →</button>
   </div>
 </header>
@@ -426,6 +427,7 @@ const PREP_ITEMS = [
   { id:'pandan_gum_c',  name:'Pandan Gum Cordial',      cat:'Batch / Cordial', btl:750 },
   { id:'long_thai_b',      name:'Long Thai Batch',              cat:'Batch / Cordial', btl:750 },
   { id:'condensed_thai_tea', name:'Condensed Thai Tea (Brewed Tea + Condensed Milk + Coconut Cream)', cat:'Batch / Cordial', btl:750 },
+  { id:'vanilla_demerara', name:'Vanilla Demerara (House Demerara + Vanilla Paste)', cat:'Syrup', btl:750 },
   { id:'golden_myth_b',   name:'Golden Myth Batch',            cat:'Batch / Cordial', btl:750 },
   { id:'belly_shot_b',    name:'Belly Shot (Pork Fat Washed Dickel Bourbon)', cat:'Batch / Cordial', btl:750 },
   { id:'thai_mana_b',     name:'Thai Mana Batch',              cat:'Batch / Cordial', btl:750 },
@@ -847,7 +849,7 @@ const DRINKS = [
   { name:'Honeymoon', menu:'CKG Classics', loc:'CKG', ing:{ apple_jack:0.75, benedictine:0.75, eldee_ts:0.75, lemon:0.75 } },
   { name:'Sherry Cobbler', menu:'CKG Classics', loc:'CKG', ing:{ amontillado_s:3.0, simple_s:0.5 } },
   { name:'Sidecar', menu:'CKG Classics', loc:'CKG', ing:{ cognac_r:2.0, eldee_ts:0.25, lemon:0.75, simple_s:0.5 } },
-  { name:'Pimm\'s Cup', menu:'CKG Classics', loc:'CKG', ing:{ pimms_b:1.0, jelinek_fernet:0.25, tuve_fernet:0.25, cucumber_w:0.75, lemon:0.75, simple_s:0.5 } },
+  { name:'Pimm\'s Cup', menu:'CKG Classics', loc:'CKG', ing:{ pimms_spirit:1.0, jelinek_fernet:0.25, tuve_fernet:0.25, cucumber_w:0.75, lemon:0.75, simple_s:0.5 } },
   { name:'Pisco Sour', menu:'CKG Classics', loc:'CKG', ing:{ pisco_r:2.0, lemon:0.5, lime:0.25, gum_s:0.5 } },
   { name:'Bamboo', menu:'CKG Classics', loc:'CKG', ing:{ house_dry_verm:1.5, fino_sherry:1.5, sakura_s:0.125 } },
   { name:'Sbagliato', menu:'CKG Classics', loc:'CKG', ing:{ house_sweet_verm:1.5, tuve_bitter_liq:1.5 } },
@@ -863,8 +865,8 @@ const DRINKS = [
   { name:'Koi Kooler', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, negroni16:0.25, giffard_lychee:0.5, lemon:1.0, lemongrass_s:0.75, grapefruit:0.25 } },
   { name:'Lemongrass Swizzle', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:2.0, lemongrass_s:1.0, cucumber_w:0.75, lime:0.5, yuzu:0.25 } },
   { name:'License To Drive', menu:'CKG Manga', loc:'CKG', ing:{ dickel_rye:1.5, cappelletti_aperitivo:0.75, solera_sherry:0.75 } },
-  { name:'Liquid Escape - Vodka', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
-  { name:'Liquid Escape - Reposado', menu:'CKG Manga', loc:'CKG', ing:{ arette_repo:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
+  { name:'Liquid Escape - Vodka', menu:'CKG Manga', loc:'CKG', ing:{ monopolowa_v:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, vanilla_demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
+  { name:'Liquid Escape - Reposado', menu:'CKG Manga', loc:'CKG', ing:{ arette_repo:1.5, newdeal_coffee:0.5, cynar_ricetta:0.25, vanilla_demerara:0.5, jot_coffee:0.125, olive_oil_prep:0.125 } },
   { name:'Long Thailand Iced Tea', menu:'CKG Manga', loc:'CKG', ing:{ long_thai_b:1.75, thai_tea:1.5, coconut_c:1.5 } },
   { name:'Lucid Fuji', menu:'CKG Manga', loc:'CKG', ing:{ cachaca_r:1.0, monopolowa_g:1.0, lucid_c:1.5 } },
   { name:'Midnight Oni Highball', menu:'CKG Manga', loc:'CKG', ing:{ akashi_ume:1.0, tenjaku_whisky:1.0, oni_plum_c:0.75 } },
@@ -885,7 +887,7 @@ const DRINKS = [
   { name:'Aperol Spritz', menu:'CKG Classics', loc:'CKG', ing:{ lemon:0.75, simple_s:0.5, negroni16:2.0, prosecco_w:3.0 } },
   { name:'Face Planter Punch', menu:'CKG Manga', loc:'CKG', ing:{ kiwi_p:2.0, lime:2.0, pineapple_j:4.0, hamilton_86:4.0, cognac_r:1.0, goslings_r:1.0, worthy_park:0.5 } },
   // ── CKG Manga House Shots ────────────────────────────────────────────────
-  { name:'Golden Myth', menu:'CKG Manga House Shots', loc:'CKG', ing:{ golden_myth_b:4.0 } },
+  { name:'Golden Myth', menu:'CKG Manga House Shots', loc:'CKG', ing:{ golden_myth_b:2.0 } },
   { name:'Belly Shot', menu:'CKG Manga House Shots', loc:'CKG', ing:{ belly_shot_b:2.0 }, note:'Served with a 4oz side of pork belly broth (untracked — no broth recipe on file)' },
   { name:'Thai Manna', menu:'CKG Manga House Shots', loc:'CKG', ing:{ thai_mana_b:2.0 } },
   // ── CKG Well Pours (neat/rocks, no cocktail recipe) ─────────────────────────
@@ -1270,6 +1272,77 @@ function printPrepSheet() {
     <tbody>${rows}</tbody>
   </table>
   <div class="footer">Bar Prep · Generated by Bar Par Calculator</div>
+<script>window.onload = () => window.print();<\/script>
+</body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PRINT ON-HAND COUNT SHEET (blank, for staff to write on)
+// ══════════════════════════════════════════════════════════════════════════════
+
+function printOnHandSheet() {
+  const needed = calcNeeded(true);
+  const dateStr = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+  const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
+
+  const SPIRIT_CATS_PRINT = ['Spirit', 'Liqueur'];
+  let rows = '';
+  categories.forEach(cat => {
+    if (SPIRIT_CATS_PRINT.includes(cat)) return;
+    const items = PREP_ITEMS.filter(p => (needed[p.id] || 0) > 0 && p.cat === cat);
+    if (!items.length) return;
+
+    rows += `<tr class="cat-row"><td colspan="2">${cat}</td></tr>`;
+    items.forEach(p => {
+      rows += `
+        <tr>
+          <td class="item-name">${p.name} <span style="font-size:11px;color:#999;font-weight:400">(${p.btl || 750}ml btl)</span></td>
+          <td class="item-blank"><div class="write-line"></div></td>
+        </tr>`;
+    });
+  });
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<title>On-Hand Count Sheet</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, Arial, sans-serif; font-size: 13px; color: #111; padding: 20px 28px; }
+  .sheet-header { border-bottom: 3px solid #111; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .sheet-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .sheet-meta { font-size: 12px; color: #555; text-align: right; line-height: 1.8; }
+  table { width: 100%; border-collapse: collapse; }
+  .cat-row td { background: #f4f4f4; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #666; padding: 8px 10px 4px; border-top: 1px solid #ddd; }
+  tr td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: middle; }
+  .item-name { font-weight: 600; font-size: 14px; width: 65%; }
+  .item-blank { width: 35%; }
+  .write-line { border-bottom: 1px solid #999; height: 18px; }
+  .footer { margin-top: 20px; font-size: 11px; color: #aaa; text-align: center; }
+  @media print { body { padding: 12px; } .footer { position: fixed; bottom: 10px; width: 100%; } }
+</style>
+</head><body>
+  <div class="sheet-header">
+    <div>
+      <div class="sheet-title">On-Hand Count Sheet</div>
+      <div style="font-size:13px;color:#444;margin-top:4px">${activeLocation} &nbsp;·&nbsp; Write in what you have on hand</div>
+    </div>
+    <div class="sheet-meta">
+      Date: ______________<br>
+      Counted by: __________
+    </div>
+  </div>
+  <table>
+    <thead><tr>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">PREP ITEM</th>
+      <th style="text-align:left;padding:6px 10px;font-size:11px;color:#888;font-weight:700;border-bottom:2px solid #ddd">ON HAND</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer">Bar Prep · Generated by Bar Par Calculator · ${dateStr}</div>
 <script>window.onload = () => window.print();<\/script>
 </body></html>`;
 

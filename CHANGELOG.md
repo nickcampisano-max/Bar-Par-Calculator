@@ -5,6 +5,51 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-20] — Printable On-Hand Count Sheet
+
+Added a new "🖨 Print On-Hand Sheet" button next to the existing Print Prep Sheet button. Nick's staff currently write on-hand prep counts on blank paper before he retypes them into the spreadsheet — this gives them a structured sheet to write on instead.
+
+### Added
+- **`printOnHandSheet()`** — opens a printable sheet listing every prep item currently needed for the active location (same category/item scope as the existing Prep Sheet export — excludes Spirit/Liqueur categories), grouped by category, with each row showing item name + bottle size and a blank line to write the on-hand count. No needed/net/checkbox columns — just name and a line, per Nick's request to keep it simpler than the existing Prep Sheet. Header includes date and "counted by" blanks. Respects whichever location is active.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 237 DRINKS, zero duplicates, zero dangling refs, CSV import unaffected.
+- Simulated a call to `printOnHandSheet()` directly in the verification harness (with sample sales data) to confirm it generates valid HTML with populated rows, category headers, and write-lines — not just that the file parses.
+
+---
+
+## [2026-07-16h] — Pimm's Cup Resolved: Component Spec, Not Batch
+
+Nick decided to roll with the literal cocktail spec for CKG's Pimm's Cup rather than the ambiguous "(1.75 Pimms Batch)" footnote. Changed `pimms_b:1.0` (the pre-batched item) to `pimms_spirit:1.0` (plain Pimm's No. 1 liqueur), matching the recipe's literal "1 Pimms / ¼ Jelinek Fernet / ¼ Tuve Fernet" line items with no batch reference at all. Closes the last open item from `2026-07-16f`/`g`.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 237 DRINKS, zero duplicates, zero dangling refs, CSV import unaffected.
+
+---
+
+## [2026-07-16g] — Bar Manager Answers: Golden Myth Corrected, Vanilla Demerara Added
+
+Nick's bar manager (Bacon) answered the three open questions from `2026-07-16f`.
+
+### Fixed
+- **Golden Myth** — corrected from a 4oz pour to a **2oz pour** (`golden_myth_b:2.0`). Bacon confirmed all three CKG House Shots (Golden Myth, Thai Manna, Belly Shot) are batched and poured as 2oz shots; the "4oz Pour" in the menu-specs doc was wrong.
+
+### Added
+- **`vanilla_demerara`** new PREP_ITEM ("Vanilla Demerara (House Demerara + Vanilla Paste)") — confirmed as a real, distinct prep: house Demerara syrup with a barspoon of vanilla paste stirred in, used only in Liquid Escape. Both `Liquid Escape - Vodka` and `Liquid Escape - Reposado` switched from `demerara:0.5` to `vanilla_demerara:0.5`.
+
+### Confirmed, no change needed
+- **Aviation** is batched like CKC — the `aviation_b:2.5` addition from `2026-07-16f` was correct.
+- **Condensed Thai Tea** — the *menu-spec* ratio (2qt tea / 14oz condensed milk / 4oz coconut cream) is the correct one, not the prep-recipe docs' 4qt/16oz/8oz. No code change (still tracked as an opaque 6oz `condensed_thai_tea` pour either way), but resolves the internal-doc-inconsistency flag from the prior entry.
+- **Three Spiced Genepy, Cinnamon Campari, and Coconut Cachaca** are confirmed unused — leftover preps from when CKG and CKC shared a combined Manga menu. Never added to PREP_ITEMS or DRINKS, so nothing to remove.
+
+### Pending
+- Bacon has finalized and renamed the prep list to "CKG Manga Prep Recipes 2026" to avoid version confusion, resending via a new upload — not yet received.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 237 DRINKS (110 CKC, 127 CKG), zero duplicate ids, zero duplicate name+loc combos, zero dangling ingredient references, CSV import unaffected (108 matched, 1 known unmatched).
+
+---
+
 ## [2026-07-16f] — CKG Classics + Manga Cross-Checked Against Latest Docs (Classics PDF, Prep Recipes, Manga Menu Specs)
 
 ### Fixed
