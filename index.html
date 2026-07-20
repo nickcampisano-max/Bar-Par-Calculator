@@ -1285,15 +1285,20 @@ function printPrepSheet() {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function printOnHandSheet() {
-  const needed = calcNeeded(true);
   const dateStr = new Date().toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'});
   const categories = [...new Set(PREP_ITEMS.map(p => p.cat))];
+
+  // Every prep item actually used in a recipe at this location — NOT filtered by
+  // recent sales. An on-hand count needs a line for every item staff might have
+  // in stock, even ones that didn't sell in the latest sales drop.
+  const usedIds = new Set();
+  locDrinks().forEach(d => Object.keys(d.ing || {}).forEach(id => usedIds.add(id)));
 
   const SPIRIT_CATS_PRINT = ['Spirit', 'Liqueur'];
   let rows = '';
   categories.forEach(cat => {
     if (SPIRIT_CATS_PRINT.includes(cat)) return;
-    const items = PREP_ITEMS.filter(p => (needed[p.id] || 0) > 0 && p.cat === cat);
+    const items = PREP_ITEMS.filter(p => usedIds.has(p.id) && p.cat === cat);
     if (!items.length) return;
 
     rows += `<tr class="cat-row"><td colspan="2">${cat}</td></tr>`;

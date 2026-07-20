@@ -10,11 +10,14 @@ Format: newest entries at the top.
 Added a new "🖨 Print On-Hand Sheet" button next to the existing Print Prep Sheet button. Nick's staff currently write on-hand prep counts on blank paper before he retypes them into the spreadsheet — this gives them a structured sheet to write on instead.
 
 ### Added
-- **`printOnHandSheet()`** — opens a printable sheet listing every prep item currently needed for the active location (same category/item scope as the existing Prep Sheet export — excludes Spirit/Liqueur categories), grouped by category, with each row showing item name + bottle size and a blank line to write the on-hand count. No needed/net/checkbox columns — just name and a line, per Nick's request to keep it simpler than the existing Prep Sheet. Header includes date and "counted by" blanks. Respects whichever location is active.
+- **`printOnHandSheet()`** — opens a printable sheet listing every prep item used in a recipe at the active location (excludes Spirit/Liqueur categories), grouped by category, with each row showing item name + bottle size and a blank line to write the on-hand count. No needed/net/checkbox columns — just name and a line. Header includes date and "counted by" blanks. Respects whichever location is active.
+
+### Fixed (same day, before first use)
+- Initial version filtered items by `needed[p.id] > 0` (i.e., only items with sales in the current week), same as the Prep Sheet. Nick caught that this drops items with zero recent sales but real on-hand stock — an inventory count needs a line for everything in use, not just what recently sold. Switched the filter to "referenced by any drink at this location" (via `locDrinks()`), independent of sales data. Confirmed via harness: CKC lists 66 non-liquor items, CKG lists 56, even with zero sales entered.
 
 ### Verification
 - Node harness: 206 PREP_ITEMS, 237 DRINKS, zero duplicates, zero dangling refs, CSV import unaffected.
-- Simulated a call to `printOnHandSheet()` directly in the verification harness (with sample sales data) to confirm it generates valid HTML with populated rows, category headers, and write-lines — not just that the file parses.
+- Simulated `printOnHandSheet()` for both CKC and CKG with an empty `sales` object to confirm every in-use item still appears — not just that the file parses.
 
 ---
 
