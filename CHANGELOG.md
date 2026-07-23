@@ -5,6 +5,19 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-20b] — Arizona Ronan → Arizona Ronin (Spelling Correction)
+
+Nick's CSV import kept flagging "AZ Ronin" as unmatched at ATP. Checked every source doc on file (CK MANGA PREP RECIPES.pdf, pages 18–19) — all spell it "ARIZONA RONAN," matching the build, so this wasn't a build error. Nick confirmed Toast's actual item name is "Ronin," not "Ronan" — renamed the canonical drink to **Arizona Ronin** to match what's really printed/rung.
+
+### Changed
+- `DRINKS` entry renamed `'Arizona Ronan'` → `'Arizona Ronin'` (ATP menu, ingredients unchanged)
+- `NAME_ALIASES` updated: `arizona ronan`, `arizona ronin`, `az ronin`, and `az ronan` all map to the new canonical `'Arizona Ronin'` — covers both spellings and the "AZ" abbreviation Toast uses, so this can't silently break again either way.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 237 DRINKS, zero duplicates, zero dangling refs, CSV import unaffected.
+
+---
+
 ## [2026-07-20] — Printable On-Hand Count Sheet
 
 Added a new "🖨 Print On-Hand Sheet" button next to the existing Print Prep Sheet button. Nick's staff currently write on-hand prep counts on blank paper before he retypes them into the spreadsheet — this gives them a structured sheet to write on instead.
