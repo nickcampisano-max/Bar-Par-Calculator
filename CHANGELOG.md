@@ -5,6 +5,43 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-29b] — 3 More CKG House Shots Added (Duh, Kanpai!, Low Key Toki Boilermaker)
+
+Nick uploaded "CK House Cocktails + House Shots.pdf" — a recipe/costing export (labeled "Clever Koi - Phoenix," but confirmed as CKG's own data: its Enabler recipe uses `bardstown_bbn`, matching CKG's build, not CKC's `dickel_bourbon` version). It revealed CKG actually serves 6 house shots, not the 3 already built — this is almost certainly why the CKG CSV import was flagging house-shot sales lines with nothing on the dashboard to match them.
+
+### Added
+- **Duh** — `monopolowa_v:0.5, amaretto:0.25, passion_p:0.25, lemon:0.25, lime:0.25, prosecco_w:1.0`. Topped with a 12oz can of Sierra Nevada Wild Little Thing Sour Ale — left untracked, no note ingredient for it (see below).
+- **Kanpai!** — `ing:{}`, note-only. 100% retail units (Kikumasa Cup Sake + Harland Japanese Lager can), zero prep-recipe components, so nothing to track.
+- **Low Key Toki Boilermaker** — `suntory_toki:2.0, condensed_thai_tea:0.5`. Served alongside a 16oz can of Wren House Spellbinder Hazy IPA — untracked.
+- `'belly up': 'Belly Shot'` alias added — the source doc calls this item "Belly Up," not "Belly Shot" like the existing build. Aliased defensively since it's unconfirmed which name Toast actually rings under.
+
+### Explicitly NOT tracked (Nick's call)
+- Canned beers (Sierra Nevada Wild Little Thing, Harland Japanese Lager, Wren House Spellbinder) and Kikumasa Cup Sake — the app has no per-can/per-bottle-as-a-unit tracking pattern, only oz-from-a-bottle. Nick confirmed these don't need to be built out; skip them and just add the prep-recipe-relevant components so both CKC and CKG stay consistent.
+
+### Still open — not built, needs Nick's input
+- **House Apertivo** (2oz batch pour) — could be Golden Myth under a different name, or a genuinely separate batch. Not added to avoid creating a duplicate/wrong batch item.
+- **The Jin Sakai** — a real cocktail on this doc with no existing build anywhere (Crystal Cordial, Hayman High Proof Gin, Becherovka, House Dry Vermouth, bitters, Prosecco float — quantities look like a Batch + float pattern, similar to Aviation's dual batch/component tracking).
+- **Zenitsu Zour spec conflict** — this doc specs Suntory Toki + Couvignac; two independent documents already confirmed Tenjaku + Cognac as final. Not changing based on one document against two.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 240 DRINKS (110 CKC, 130 CKG), zero duplicates, zero dangling refs, CSV import unaffected.
+
+---
+
+## [2026-07-29] — CKG Sales Tab Reordered: Manga First
+
+Nick pointed out CKC's Sales tab shows Manga cocktails first, but CKG's showed Classics first. Added a global `MENU_ORDER` array + `orderMenus()` helper (used by `renderSales()` and `renderMovement()`) so each location's Manga menu leads — mirroring CKC's existing order. Any menu not explicitly listed just falls back to its natural order, so this can't silently break if a new menu category gets added later.
+
+### Changed
+- CKG Sales tab order: `CKG Classics, CKG Manga, ...` → `CKG Manga, Non-Alcoholic, CKG Classics, CKG Manga House Shots, CKG Well Pours`
+- CKC's order confirmed byte-for-byte unchanged (`CKC Manga, Non-Alcoholic, ATP, Classics, Feature`) — verified directly, since Nick asked explicitly not to touch the CKC side.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 237 DRINKS, zero duplicates, zero dangling refs, CSV import unaffected.
+- Ran `orderMenus()` directly against both locations' actual menu lists to confirm the exact resulting order, not just that it compiles.
+
+---
+
 ## [2026-07-20b] — Arizona Ronan → Arizona Ronin (Spelling Correction)
 
 Nick's CSV import kept flagging "AZ Ronin" as unmatched at ATP. Checked every source doc on file (CK MANGA PREP RECIPES.pdf, pages 18–19) — all spell it "ARIZONA RONAN," matching the build, so this wasn't a build error. Nick confirmed Toast's actual item name is "Ronin," not "Ronan" — renamed the canonical drink to **Arizona Ronin** to match what's really printed/rung.

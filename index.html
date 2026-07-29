@@ -890,6 +890,9 @@ const DRINKS = [
   { name:'Golden Myth', menu:'CKG Manga House Shots', loc:'CKG', ing:{ golden_myth_b:2.0 } },
   { name:'Belly Shot', menu:'CKG Manga House Shots', loc:'CKG', ing:{ belly_shot_b:2.0 }, note:'Served with a 4oz side of pork belly broth (untracked — no broth recipe on file)' },
   { name:'Thai Manna', menu:'CKG Manga House Shots', loc:'CKG', ing:{ thai_mana_b:2.0 } },
+  { name:'Duh', menu:'CKG Manga House Shots', loc:'CKG', ing:{ monopolowa_v:0.5, amaretto:0.25, passion_p:0.25, lemon:0.25, lime:0.25, prosecco_w:1.0 }, note:'Topped with a 12oz can of Sierra Nevada Wild Little Thing Sour Ale (untracked — no can/keg par tracking in this app)' },
+  { name:'Kanpai!', menu:'CKG Manga House Shots', loc:'CKG', ing:{}, note:'Kikumasa Cup Sake + Harland Japanese Lager can — both untracked retail units, no prep recipe involved' },
+  { name:'Low Key Toki Boilermaker', menu:'CKG Manga House Shots', loc:'CKG', ing:{ suntory_toki:2.0, condensed_thai_tea:0.5 }, note:'Served alongside a 16oz can of Wren House Spellbinder Hazy IPA (untracked — no can/keg par tracking in this app)' },
   // ── CKG Well Pours (neat/rocks, no cocktail recipe) ─────────────────────────
   { name:'Well Vodka', menu:'CKG Well Pours', loc:'CKG', ing:{ monopolowa_v:2.0 } },
   { name:'Well Gin', menu:'CKG Well Pours', loc:'CKG', ing:{ monopolowa_g:2.0 } },
@@ -898,6 +901,26 @@ const DRINKS = [
   { name:'Well Rye', menu:'CKG Well Pours', loc:'CKG', ing:{ dickel_rye:2.0 } },
   { name:'Well Mezcal', menu:'CKG Well Pours', loc:'CKG', ing:{ rayu_mezcal:2.0 } },
 ];
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MENU DISPLAY ORDER  (controls section order on Sales tab + Cocktail Movement)
+// ══════════════════════════════════════════════════════════════════════════════
+// Each location's Manga menu leads, matching how CKC has always displayed
+// (CKC Manga first). Any menu not listed here just falls back to whatever
+// order it naturally appears in — nothing breaks if a new menu shows up.
+const MENU_ORDER = [
+  'CKC Manga', 'CKG Manga', 'Non-Alcoholic', 'ATP',
+  'Classics', 'CKG Classics', 'CKG Manga House Shots', 'CKG Well Pours', 'Feature',
+];
+function orderMenus(menus) {
+  return [...menus].sort((a, b) => {
+    const ia = MENU_ORDER.indexOf(a), ib = MENU_ORDER.indexOf(b);
+    if (ia === -1 && ib === -1) return 0;
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  STATE  (in-memory; localStorage for persistence across reloads)
@@ -995,7 +1018,7 @@ function calcNeeded(applyBuffer = false) {
 function renderSales() {
   const scoped = locDrinks();
   if (!scoped.length) { renderCKGPlaceholder('salesContent'); return; }
-  const menus = [...new Set(scoped.map(d => d.menu))];
+  const menus = orderMenus([...new Set(scoped.map(d => d.menu))]);
   let html = '';
 
   menus.forEach(menu => {
@@ -2051,6 +2074,9 @@ const NAME_ALIASES = {
   'na thai tea':                'Thai Tea NA',
   'whiskey sour wegg':          'Whiskey Sour',
   'whiskey sourno egg':         'Whiskey Sour',
+  // CKG House Shots — the internal recipe/costing sheet calls this "Belly Up,"
+  // not yet confirmed which name Toast actually rings it under, so alias both
+  'belly up':                   'Belly Shot',
 };
 
 function normalizeName(str) {
@@ -2333,7 +2359,7 @@ function renderMovement() {
     'CKG Manga House Shots': 'CKG Manga House Shots',
     'CKG Well Pours': 'CKG Well Pours',
   };
-  const menus = [...new Set(scopedDrinks.map(d => d.menu))];
+  const menus = orderMenus([...new Set(scopedDrinks.map(d => d.menu))]);
 
   menus.forEach(menu => {
     const menuDrinks = soldDrinks.filter(d => d.menu === menu)
