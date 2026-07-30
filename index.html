@@ -877,6 +877,7 @@ const DRINKS = [
   { name:'Yotei Six', menu:'CKG Manga', loc:'CKG', ing:{ pork_fat_vodka:1.25, ember_s:0.75, lime:0.5, lemon:0.25, clamato:1.5 } },
   { name:'Zenitsu Zour', menu:'CKG Manga', loc:'CKG', ing:{ tenjaku_whisky:1.0, cognac_r:1.0, aa_oj:1.0, coconut_c:1.0, yuzu:0.25, ginga_s:0.25 } },
   { name:'Jade Mist Wander', menu:'CKG Manga', loc:'CKG', ing:{ el_dist_tequila:1.5, chareau_l:0.25, midori_liq:0.25, vanilla_s:0.5, citric_simple:0.25, berry_momokawa_sake:0.5 } },
+  { name:'The Jin Sakai', menu:'CKG Manga', loc:'CKG', ing:{ crystal_c:1.0, navy_gin:1.0, becherovka:0.75, house_dry_verm:0.75, prosecco_w:2.0 } },
   // ── CKG Manga — Non-Alcoholic ────────────────────────────────────────────
   { name:'Lemongrass Refresher NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lemongrass_s:2.0, lime:1.0, yuzu:0.5, cucumber_w:1.5 } },
   { name:'Riding The Pine NA', menu:'Non-Alcoholic', loc:'CKG', ing:{ lime:1.0, bombgave:1.0, passion_p:1.0 } },
@@ -1018,7 +1019,10 @@ function calcNeeded(applyBuffer = false) {
 function renderSales() {
   const scoped = locDrinks();
   if (!scoped.length) { renderCKGPlaceholder('salesContent'); return; }
-  const menus = orderMenus([...new Set(scoped.map(d => d.menu))]);
+  // "CKG Well Pours" is single-spirit pours, not cocktails — its usage already
+  // rolls into Spirits & Ordering via calcNeeded(), so it doesn't need its own
+  // section here too. Sales still get recorded via CSV import either way.
+  const menus = orderMenus([...new Set(scoped.map(d => d.menu))]).filter(m => m !== 'CKG Well Pours');
   let html = '';
 
   menus.forEach(menu => {
@@ -2077,6 +2081,13 @@ const NAME_ALIASES = {
   // CKG House Shots — the internal recipe/costing sheet calls this "Belly Up,"
   // not yet confirmed which name Toast actually rings it under, so alias both
   'belly up':                   'Belly Shot',
+  // "House Apertivo" (recipe/costing sheet) is treated as the same batch as
+  // "Golden Myth" (menu name) — the costing sheet's 6 House Shots don't include
+  // Golden Myth at all, and House Apertivo fills its exact slot (2oz batch pour,
+  // same House Shots category). Inferred, not confirmed by Nick — flag if wrong.
+  'house apertivo':             'Golden Myth',
+  'jin sakai':                  'The Jin Sakai',
+  'the jin sakai':              'The Jin Sakai',
 };
 
 function normalizeName(str) {

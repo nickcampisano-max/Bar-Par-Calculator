@@ -5,6 +5,22 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-29c] — The Jin Sakai Added; House Apertivo Aliased to Golden Myth
+
+Closed out the two remaining open items from the "CK House Cocktails + House Shots.pdf" review so CKG stays current. Left the third item (Zenitsu Zour's Suntory Toki + Couvignac spec vs. the already-confirmed Tenjaku + Cognac) untouched — one document contradicting two independent confirmations isn't enough to flip it.
+
+### Added
+- **The Jin Sakai** (CKG Manga) — `crystal_c:1.0, navy_gin:1.0, becherovka:0.75, house_dry_verm:0.75, prosecco_w:2.0`. Built from the doc's "Method" section (1 Crystal Cordial / 1 Hayman High Proof Gin / .75 Becherovka / .75 House Dry Vermouth / Prosecco float), not its simplified "Batch - Jin Sakai" ingredient line — same component-over-batch approach Nick chose for Pimm's Cup. "Hayman High Proof Gin" mapped to the existing `navy_gin` (Hayman's Navy Strength Gin) — same brand, "high proof" and "Navy Strength" describe the same product line. Bitters and sugar cube garnish left untracked, consistent with standing convention.
+- `'jin sakai'` / `'the jin sakai'` aliases added for CSV matching.
+
+### Changed
+- **House Apertivo → aliased to Golden Myth**, not built as a separate item. Reasoning: the costing sheet's 6 House Shots (Belly Up, Duh, House Apertivo, Kanpai!, Low Key Toki Boilermaker, Thai Manna) don't include "Golden Myth" at all, and House Apertivo fills its exact slot — same 2oz batch pour, same House Shots category. **This is inferred, not confirmed by Nick** — flag if it turns out to be a genuinely separate batch.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 241 DRINKS (110 CKC, 131 CKG), zero duplicates, zero dangling refs, CSV import unaffected.
+
+---
+
 ## [2026-07-29b] — 3 More CKG House Shots Added (Duh, Kanpai!, Low Key Toki Boilermaker)
 
 Nick uploaded "CK House Cocktails + House Shots.pdf" — a recipe/costing export (labeled "Clever Koi - Phoenix," but confirmed as CKG's own data: its Enabler recipe uses `bardstown_bbn`, matching CKG's build, not CKC's `dickel_bourbon` version). It revealed CKG actually serves 6 house shots, not the 3 already built — this is almost certainly why the CKG CSV import was flagging house-shot sales lines with nothing on the dashboard to match them.
