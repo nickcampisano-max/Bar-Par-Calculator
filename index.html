@@ -1019,10 +1019,13 @@ function calcNeeded(applyBuffer = false) {
 function renderSales() {
   const scoped = locDrinks();
   if (!scoped.length) { renderCKGPlaceholder('salesContent'); return; }
-  // "CKG Well Pours" is single-spirit pours, not cocktails — its usage already
-  // rolls into Spirits & Ordering via calcNeeded(), so it doesn't need its own
-  // section here too. Sales still get recorded via CSV import either way.
-  const menus = orderMenus([...new Set(scoped.map(d => d.menu))]).filter(m => m !== 'CKG Well Pours');
+  // "CKG Well Pours" and "CKG Manga House Shots" are hidden from the Sales tab
+  // display — their usage still rolls into calcNeeded() (Pars tab, Prep Sheet,
+  // Spirits & Ordering) regardless, and CSV import still records their sales
+  // directly. Removed per Nick's request; only loses manual-entry UI for these
+  // items specifically, CSV import is unaffected.
+  const HIDDEN_SALES_MENUS = ['CKG Well Pours', 'CKG Manga House Shots'];
+  const menus = orderMenus([...new Set(scoped.map(d => d.menu))]).filter(m => !HIDDEN_SALES_MENUS.includes(m));
   let html = '';
 
   menus.forEach(menu => {
@@ -2086,6 +2089,9 @@ const NAME_ALIASES = {
   // Golden Myth at all, and House Apertivo fills its exact slot (2oz batch pour,
   // same House Shots category). Inferred, not confirmed by Nick — flag if wrong.
   'house apertivo':             'Golden Myth',
+  // Real Toast export (2026-07-30) confirms this item rings as "The Myth" —
+  // reinforces the House Apertivo/Golden Myth inference above (same slot, third name)
+  'the myth':                   'Golden Myth',
   'jin sakai':                  'The Jin Sakai',
   'the jin sakai':              'The Jin Sakai',
 };

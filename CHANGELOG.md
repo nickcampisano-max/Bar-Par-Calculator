@@ -5,6 +5,44 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-07-30b] — CKG Manga House Shots Hidden from Sales Tab
+
+Nick confirmed the deployment gap explains the Well Pours discrepancy (he manually pushes `index.html` to GitHub himself, hasn't redeployed since the last fix — no code issue). He also confirmed the "Fellow Osteria" Toast screenshot was CKG's real data (Toast lets you view a sibling location's reports while logged into another). Asked to clarify what "remove the shot" meant given several candidates in play (Kanpai! specifically vs. the whole section) — Nick chose the whole section, same treatment as Well Pours.
+
+### Changed
+- `HIDDEN_SALES_MENUS` now covers both `'CKG Well Pours'` and `'CKG Manga House Shots'` — neither renders as its own section on the Sales tab anymore. Verified the underlying math is unaffected: `calcNeeded()` still correctly totals Golden Myth/Belly Shot/Thai Manna batch usage from sales data regardless of Sales-tab visibility, so Pars/Prep Sheet/On-Hand Sheet are untouched. Same tradeoff as Well Pours — no manual-entry UI for these items now, CSV import still records them fine.
+
+### Still open
+- **"Pickle Back - Blanco"** and **"San Junipero"** — confirmed real CKG House Shots (not a different restaurant), still zero recipe data. Need real recipes before these can be built.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 241 DRINKS, zero duplicates, zero dangling refs.
+- Simulated sales for Golden Myth/Thai Manna/Belly Shot with the section hidden — batch `needed` amounts (8oz/4oz/2oz respectively) computed correctly, confirming Pars tab accuracy is unaffected by the display change.
+
+---
+
+## [2026-07-30] — "The Myth" Alias Added; CSV Gaps Found in Real Toast Export
+
+Nick pulled a real Toast Product Mix report and screenshotted it. Two findings:
+
+### Added
+- `'the myth': 'Golden Myth'` alias — Toast's actual House Shots line item is "The Myth," a third name for the same slot as "Golden Myth" (menu) and "House Apertivo" (costing sheet). Reinforces, doesn't replace, that earlier inference.
+
+### Confirmed working, no fix needed
+- "Kanpai!!" (double exclamation, real Toast text) and "Belly Up" both normalize/match correctly against the existing build — verified directly against `buildDrinkLookup()`, not just assumed.
+
+### Found — NOT fixed, need real recipes
+- **"Pickle Back - Blanco"** and **"San Junipero"** — real House Shots line items in the Toast export with zero recipe data anywhere in this project. Not built; can't guess at ingredients.
+- Also flagged: the Toast screenshot's location selector reads **"Fellow Osteria,"** not Clever Koi — needs confirming this report is actually CKG's data before treating "Pickle Back - Blanco"/"San Junipero" as real CKG menu items to chase down.
+
+### Also reported (not yet resolved)
+- Nick says "CKG Well Pours" is still showing on the live dashboard after the `2026-07-29` fix. The deployed site (`nickcampisano-max.github.io/Bar-Par-Calculator`) is not backed by any git repo in the local project folder — this app has no connection I can push through. The live site is running whatever was last manually deployed there, not the current local `index.html`. Needs Nick to redeploy.
+
+### Verification
+- Node harness: 206 PREP_ITEMS, 241 DRINKS, zero duplicates, zero dangling refs.
+
+---
+
 ## [2026-07-29c] — The Jin Sakai Added; House Apertivo Aliased to Golden Myth
 
 Closed out the two remaining open items from the "CK House Cocktails + House Shots.pdf" review so CKG stays current. Left the third item (Zenitsu Zour's Suntory Toki + Couvignac spec vs. the already-confirmed Tenjaku + Cognac) untouched — one document contradicting two independent confirmations isn't enough to flip it.
