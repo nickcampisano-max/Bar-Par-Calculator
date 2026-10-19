@@ -5,6 +5,43 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-10-18] — CKC Fall 2026 Menu Update
+
+Full menu refresh for CKC Manga (now "Seasonal Cocktails" display name, `CKC Manga` internally). ATP is unchanged. CKG side is unchanged.
+
+### Removed
+**CKC Manga (17 drinks retired):** Ba New New, Berry Beri, Don't Carrot All, Golden Elixir, Hey Bartender!, Koi-Chelada, Mr. Paradise, Overnight, Patent Pending, Say Less, Shifting Sands, Thai Berry Soda, Thai'd Up, Trees Have Eyes, Uncle Adzuki, Watch Your Head Skipper, The Face Planter Punch.
+
+**Classics (~48 drinks retired):** Collins (Vodka), Espresso Martini, Harvey Wallbanger, Lemon Drop, Madras, Moscow Mule, Salty Dog, Sea Breeze, White Russian, Vodka Tonic, Sgroppino Al Limone, Clover Club, Corpse Reviver #2, Thai Gimlet (renamed → Gin Gimlet), Gin and Tonic, Singapore Sling, Southside, Tom Collins, White Lady, Army Navy, Southside Fizz, Dark and Stormy, Doctor Funk, Hurricane, Old Cuban, Avenue, New York Sour, Paper Plane, Penicillin, Scofflaw, Statehood Cocktail, Whiskey Sour, Gold Rush, El Diablo, Paloma, Vicious Virgin, Yellow Boxer, Age of The Aquarius, Caipirinha, Chartreuse Fizz, Honeymoon, Pimm's Cup, Pisco Sour, Sidecar, Tuxedo No. 2, Rossini, Oaxacan Old Fashioned, Sherry Cobbler.
+
+**Non-Alcoholic (4 drinks retired):** Lemongrass Swizzle NA, Riding The Pine NA, Ube'Be Colada NA, BMP Sour NA.
+
+**Feature:** House Spritz removed.
+
+### Added — CKC Manga (16 new Seasonal Cocktails)
+The Oaxacan Dead (batch), Sloe Burn, Sit Next to Me (milk punch batch), A Piece of Home, Hey You Up? (batch), Double Take (batch), Apple a Day (canned batch), Garçon Means Boy, Ms. Violet Beauregarde (batch), Tamanegi Nashi (batch), Ichigo's Punch (milk punch batch), Your Other Friend's Favorite Drink, We Don't Talk About Hugo, Master Roshi's Remedy (batch), Mango A-Go-Go (batch), All or Nothing (force-carb batch).
+
+### Added — New Classics
+Martinez, Sazerac, Brooklyn, Spritz, Hugo Spritz, Kir Royale.
+
+### Added — Non-Alcoholic
+Seeds of Rebirth NA.
+
+### Added — PREP_ITEMS (53 new items)
+- Syrups/Purées: Pomegranate Gum, Grilled Mango Purée, Banana Kiwi Purée, Thai Chili Honey, Thai Chili Syrup, Charred Allium, Thyme, Apple Simple, Mulled Ruby, Pepitas Gum, KC BBQ Sauce Syrup, Green Goddess Shrub, Green Tea (Brewed).
+- Seasonal Batches (11): The Oaxacan Dead, Sit Next to Me, Hey You Up?, Double Take, Tamanegi Nashi, Ms. Violet Beauregarde, All or Nothing, Apple a Day, Mango A-Go-Go, Master Roshi's Remedy, Ichigo's Punch.
+- Infused Preps (6): Cacao Nib Infused Averna, Tarragon Infused Lillet Blanc, Blueberry Jacked Monopolowa Gin, Hibiscus Infused Shochu, Watermelon-Chamoy Infused Lucano Amaro, Cinnamon-Hazelnut Infused Amontillado.
+- New Purchased Bottles (13): Jelinek Sloe Burn, Pasubio Amaro, Giffard Pamplemousse Rose, Bruto Americano, St. George Spiced Pear Liqueur, Benitome Sesame Shochu, Strawberry Combier, Italicus, St. George Citrus Vodka, Diego Pepino Cucumber Gin, China China, Lucano Amaro, Shonan Tidal Wave Sake (720ml).
+
+### Changed
+- `NAME_ALIASES`: Added entries for all 23 new drinks; updated `'spritz'` / `'aperol spritz'` to map to new `Spritz` classic; added `'thai gimlet'` → `'Gin Gimlet'` redirect.
+- Classics retained (20): Koismo, Pornstar Martini, Vodka Martini, Vodka Gimlet, Aviation, Bees Knees, French 75, Gin Gimlet (renamed from Thai Gimlet), Gin Martini, Negroni, Jungle Bird, Daiquiri, Mai Tai, Mojito, Pina Colada, French 95, Manhattan, Boulevardier, Old Fashioned, Tommy's Margarita.
+
+### Verification
+- Builds with no JS errors. All new PREP_ITEM ids referenced in DRINKS have matching entries in PREP_ITEMS. ATP unchanged, CKG unchanged.
+
+---
+
 ## [2026-07-30b] — CKG Manga House Shots Hidden from Sales Tab
 
 Nick confirmed the deployment gap explains the Well Pours discrepancy (he manually pushes `index.html` to GitHub himself, hasn't redeployed since the last fix — no code issue). He also confirmed the "Fellow Osteria" Toast screenshot was CKG's real data (Toast lets you view a sibling location's reports while logged into another). Asked to clarify what "remove the shot" meant given several candidates in play (Kanpai! specifically vs. the whole section) — Nick chose the whole section, same treatment as Well Pours.
