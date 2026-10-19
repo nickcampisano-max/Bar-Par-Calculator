@@ -5,6 +5,24 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-10-19] — Restored Legacy Drinks for Toast ITT/RC Matching
+
+After deploying the Fall 2026 menu update, Toast CSV imports showed all ITT-prefixed and RC-suffixed cocktails failing to match. The `cleanToastName()` function correctly strips those prefixes/suffixes, but the underlying drink names no longer existed in `DRINKS` after the Classics cleanup.
+
+### Added back (legacy — not on printed menu, still ringable in Toast)
+- **49 Classics:** Collins (Vodka), Espresso Martini, Harvey Wallbanger, Lemon Drop, Madras, Moscow Mule, Salty Dog, Sea Breeze, White Russian, Vodka Tonic, Sgroppino Al Limone, Clover Club, Corpse Reviver #2, Thai Gimlet, Gin and Tonic, Singapore Sling, Southside, Tom Collins, White Lady, Army Navy, Southside Fizz, Dark and Stormy, Doctor Funk, Hurricane, Old Cuban, Avenue, New York Sour, Paper Plane, Penicillin, Scofflaw, Statehood Cocktail, Whiskey Sour, Gold Rush, El Diablo, Paloma, Vicious Virgin, Yellow Boxer, Age of The Aquarius, Caipirinha, Chartreuse Fizz, Honeymoon, Pimm's Cup, Pisco Sour, Sidecar, Tuxedo No. 2, Rossini, Oaxacan Old Fashioned, Sherry Cobbler.
+- **4 NA:** Lemongrass Swizzle NA, Riding The Pine NA, Ube'Be Colada NA, BMP Sour NA.
+- **Feature:** House Spritz.
+- **CKC Manga:** The Face Planter Punch.
+
+### Note
+Going forward: the DRINKS array should contain everything Toast will ever ring, not just what's on the current printed menu. Legacy entries are commented as such.
+
+### Verification
+- 242 total DRINKS, zero dangling prep IDs.
+
+---
+
 ## [2026-10-18] — CKC Fall 2026 Menu Update
 
 Full menu refresh for CKC Manga (now "Seasonal Cocktails" display name, `CKC Manga` internally). ATP is unchanged. CKG side is unchanged.
