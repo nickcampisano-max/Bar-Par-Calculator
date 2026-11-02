@@ -2137,8 +2137,11 @@ const NAME_ALIASES = {
   "we don't talk about hugo":   "We Don't Talk About Hugo",
   'master roshis remedy':       "Master Roshi's Remedy",
   "master roshi's remedy":      "Master Roshi's Remedy",
+  'master roshis remody':       "Master Roshi's Remedy",   // Toast typo
+  "master roshi's remody":      "Master Roshi's Remedy",   // Toast typo
   'mango a go go':              'Mango A-Go-Go',
   'mango ago go':               'Mango A-Go-Go',
+  'mango a gogo':               'Mango A-Go-Go',           // Toast strips hyphen → "mango a gogo"
   'all or nothing':             'All or Nothing',
   // New NA — Fall 2026
   'seeds of rebirth':           'Seeds of Rebirth NA',
@@ -2205,7 +2208,7 @@ function cleanToastName(raw) {
 // Items that are not cocktails — skip silently
 const IGNORE_ITEMS = new Set([
   'club soda', 'soda water', 'mocktail', 'water', 'juice',
-  'classic cocktail', 'classic cocktail atp', 'house cocktail rc',
+  'classic cocktail', 'classic cocktail atp', 'classic cocktail rc', 'house cocktail rc',
   'honest liar atp', 'rummin wild atp', 'calpico milk punch atp',
   'banana stand rc', 'endless summer rc',
   'house aperitivo', 'house aperitivo atp',

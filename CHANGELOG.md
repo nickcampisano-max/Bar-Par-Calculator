@@ -5,6 +5,16 @@ Format: newest entries at the top.
 
 ---
 
+## [2026-11-02] — Toast Name Matching Fixes
+
+Fixed two `NAME_ALIASES` entries that weren't matching due to Toast's exact formatting:
+
+- **"Mango A Go-Go"** — `normalizeName()` strips hyphens, so Toast sends `"mango a gogo"` not `"mango a go go"`. Added alias `'mango a gogo'`.
+- **"Master Roshi's Remody"** — Toast has a typo ("Remody" not "Remedy"). Added aliases for the misspelled variant.
+- **"Classic Cocktail RC"** — Added to `IGNORE_ITEMS` (Toast modifier, not a real drink entry).
+
+---
+
 ## [2026-10-19] — Restored Legacy Drinks for Toast ITT/RC Matching
 
 After deploying the Fall 2026 menu update, Toast CSV imports showed all ITT-prefixed and RC-suffixed cocktails failing to match. The `cleanToastName()` function correctly strips those prefixes/suffixes, but the underlying drink names no longer existed in `DRINKS` after the Classics cleanup.
